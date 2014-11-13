@@ -17,21 +17,12 @@
  * Pattern 2 use multicast to send wifi profile with default PIN code
  */
 
-typedef enum{
-    MODE_INIT = 0,
-    MODE_CONFIG,
-    MODE_WAIT_FOR_IP,
-    MODE_DISCOVER,
-    MODE_CONTROL,
-    MODE_ALERT,
-}PatternModes;
-
 @interface PatternTwo : PatternBase 
 {
 @private
     unsigned char m_rand[4];
+    NSString      *m_pin;
 }
-
 @property (nonatomic, strong) AsyncUdpSocket *m_configSocket;
 @property (nonatomic, strong) AsyncUdpSocket *m_controlSocket;
 

@@ -10,22 +10,23 @@
 #define SimpleConfig_SimpleConfig_h
 #import <UIKit/UIKit.h>
 #import "Defines.h"
-#import "PatternBase.h"
 #import "PatternTwo.h"
+#import "PatternThree.h"
 
 #define SC_USE_ENCRYPTION           0
 #define SC_NO_ENCRYPTION            PATTERN_USING_PLAIN
 
-#define PATTERN_TWO_SEND_PER_SEC    1                       // send round per second
-#define MAX_PATTERN_NUM             4                       // currently only supports at most 4 patterns
+#define SC_SEND_ROUND_PER_SEC       10                      // send round per second
+#define SC_MAX_PATTERN_NUM          4                       // currently only supports at most 4 patterns
 
 @interface SimpleConfig : NSObject{
 @private
-    unsigned int    m_mode;
+    unsigned int    m_mode;                                 // simple config state machine
+    unsigned int    m_current_pattern;                      // pattern in use
     BOOL            m_shouldStop;
     NSTimer         *m_timer;
     NSString        *m_error;
-    PatternBase     *m_pattern[MAX_PATTERN_NUM];
+    PatternBase     *m_pattern[SC_MAX_PATTERN_NUM];
 }
 
 @property (strong, nonatomic) NSMutableArray *config_list;    // clients list that sent config ack
@@ -36,19 +37,9 @@
 -(void)rtk_sc_config_stop;
 -(int) rtk_sc_discover_start:(unsigned int)scan_time;
 -(int) rtk_sc_control_start:(NSString *)client_mac type:(unsigned char)control_type;
+
 -(unsigned int)rtk_sc_get_mode;
 
 @end
-
-
-#if 0
--(id)   initPattern: (unsigned int)pattern_num;             // init pattern
--(int)  rtk_sc_start_config: (NSString *)ssid psw:(NSString *)password pin:(NSString *)pin; //generate profile and send one round(SEND_ROUND times)
--(int)  rtk_sc_keep_config;                                 // only send profile! Be careful when using
--(void) rtk_sc_stop_config;                                 // stop configuring manually
--(unsigned char *)rtk_sc_check_receive: (unsigned int *)len;// fetch receive information
--(int)  rtk_sc_multi_ack_resp;                              // multicast ack-ack
--(int)  rtk_sc_unicast_ack_resp: (unsigned int)ip;          // unicast ack-ack
-#endif
 
 #endif

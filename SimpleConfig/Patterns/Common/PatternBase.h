@@ -41,13 +41,15 @@
 - (unsigned int)rtk_sc_get_mode;
 
 // simple config
-- (int)     rtk_sc_build_profile: (NSString *)ssid psw:(NSString *)password pin:(NSString *)pin;
-- (int)     rtk_sc_send: (NSNumber *)times;
-- (int)     rtk_sc_send_ack_packets;
-- (int)     rtk_sc_send_ack_packets:(unsigned int) ip;
-- (void)    rtk_sc_stop;
-- (void)    rtk_sc_exit;
-//- (unsigned char *)rtk_sc_get_resp: (unsigned int *)len;
+- (int)     rtk_pattern_build_profile: (NSString *)ssid psw:(NSString *)password pin:(NSString *)pin;
+- (int)     rtk_pattern_send: (NSNumber *)times;
+- (int)     rtk_pattern_send_ack_packets;
+- (int)     rtk_pattern_send_ack_packets: (unsigned int) ip;
+- (void)    rtk_pattern_stop;
+- (NSMutableArray *)rtk_pattern_get_config_list;
+- (NSMutableArray *)rtk_pattern_get_discover_list;
+
+// discovery
 - (int)     rtk_get_connected_sta_num;
 - (NSMutableArray *) rtk_get_connected_sta_mac;
 
@@ -73,8 +75,6 @@
 - (void)rtk_dump_buffer:(unsigned char *)arr len:(int)len;
 - (unsigned char)CKSUM:(unsigned char *)data len:(int)len;
 - (int)CKSUM_OK:(unsigned char *)data len:(int)len;
-- (NSMutableArray *)rtk_sc_get_config_list;
-- (NSMutableArray *)rtk_sc_get_discover_list;
 
 // debug functions
 @end

@@ -12,6 +12,7 @@
 
 @implementation ConfigViewController
 @synthesize m_input_ssid, m_input_password, m_input_pin, m_config_button;
+@synthesize m_qrscan_line;
 @synthesize simpleConfig;
 
 - (void)viewDidLoad {
@@ -40,7 +41,7 @@
     [super dealloc];
 }
 
-/* Hide the keyboard */
+/* Hide the keyboard when pushing "enter" */
 - (BOOL)textFieldDoneEditing:(UITextField *)sender
 {
     NSLog(@"textFieldDoneEditing, Sender is %@", sender);
@@ -58,6 +59,7 @@
     return YES;
 }
 
+/* action responder */
 - (IBAction)rtk_start_listener:(id)sender
 {
     if (m_context.m_mode == MODE_INIT) {
@@ -70,6 +72,16 @@
         m_context.m_mode = MODE_INIT;
         [m_config_button setTitle:SC_UI_START_BUTTON forState:UIControlStateNormal];
         [simpleConfig rtk_sc_config_stop];
+    }
+}
+
+- (IBAction)rtk_scan_listener:(id)sender
+{
+    if (m_context.m_mode == MODE_INIT) {
+        // do action
+        [self showQRScanner];
+    }else{
+        // don't listen
     }
 }
 
@@ -145,6 +157,85 @@
     [alert show];
     
     m_context.m_mode = MODE_INIT;
+}
+
+/* ------QRCode Related------*/
+-(void)showQRScanner
+{
+    /* full screen scan QR Code */
+    m_num = 0;
+    m_upOrdown = NO;
+    //初始话ZBar
+    ZBarReaderViewController * reader = [ZBarReaderViewController new];
+    //设置代理
+    reader.readerDelegate = self;
+    //支持界面旋转
+    reader.supportedOrientationsMask = ZBarOrientationMaskAll;
+    reader.showsHelpOnFail = NO;
+    //reader.scanCrop = CGRectMake(0.15, 0, 0.6, 1.5);//扫描的感应框
+    ZBarImageScanner * scanner = reader.scanner;
+    [scanner setSymbology:ZBAR_I25
+                   config:ZBAR_CFG_ENABLE
+                       to:0];
+    UIView * view = [[UIView alloc] initWithFrame:CGRectMake(0, 0, 320, 420)];
+    view.backgroundColor = [UIColor clearColor];
+    reader.cameraOverlayView = view;
+    
+    UILabel * label = [[UILabel alloc] initWithFrame:CGRectMake(20, 20, 280, 40)];
+    label.text = @"请将扫描的二维码至于下面的框内\n谢谢！";
+    label.textColor = [UIColor whiteColor];
+    label.textAlignment = 1;
+    label.lineBreakMode = 0;
+    label.numberOfLines = 2;
+    label.backgroundColor = [UIColor clearColor];
+    [view addSubview:label];
+    
+    UIImageView * image = [[UIImageView alloc] initWithImage:[UIImage imageNamed:@"pick_bg.png"]];
+    image.frame = CGRectMake(20, 80, 280, 280);
+    [view addSubview:image];
+    
+    
+    m_qrscan_line = [[UIImageView alloc] initWithFrame:CGRectMake(30, 10, 220, 2)];
+    m_qrscan_line.image = [UIImage imageNamed:@"line.png"];
+    [image addSubview:m_qrscan_line];
+    //定时器，设定时间过1.5秒，
+    m_qrcode_timer = [NSTimer scheduledTimerWithTimeInterval:.02 target:self selector:@selector(qrcode_animation) userInfo:nil repeats:YES];
+    
+    [self presentViewController:reader animated:YES completion:^{
+    }];
+}
+
+-(void)qrcode_animation
+{
+    if (m_upOrdown == NO) {
+        m_num ++;
+        m_qrscan_line.frame = CGRectMake(40, 20+2*m_num, 220, 2);
+        if (2*m_num == 280) {
+            m_upOrdown = YES;
+        }
+    }
+    else {
+        m_num --;
+        m_qrscan_line.frame = CGRectMake(40, 20+2*m_num, 220, 2);
+        if (m_num == 0) {
+            m_upOrdown = NO;
+        }
+    }
+    
+}
+
+/* Parse QRCode */
+- (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info
+{
+    id<NSFastEnumeration> results = [info objectForKey:ZBarReaderControllerResults];
+    ZBarSymbol *symbol = nil;
+    for(symbol in results)
+        break;
+    
+    NSLog(@"Got QRCode: %@", symbol.data);
+    [m_input_pin setText:symbol.data];
+    //self.imageView.image = [info objectForKey:UIImagePickerControllerOriginalImage];
+    [picker dismissViewControllerAnimated:YES completion:nil];
 }
 
 @end

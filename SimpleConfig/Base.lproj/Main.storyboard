@@ -51,6 +51,7 @@
                             </textField>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="eAV-EI-JDv">
                                 <rect key="frame" x="63" y="260" width="194" height="81"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="20"/>
                                 <state key="normal" title="Start">
                                     <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
                                 </state>
@@ -68,7 +69,7 @@
                                 </connections>
                             </button>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="0.6915460467697796" green="0.90174619386550647" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                     </view>
                     <connections>
                         <outlet property="m_config_button" destination="eAV-EI-JDv" id="82F-hW-LbS"/>
@@ -93,27 +94,59 @@
                         <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                         <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rSl-yJ-zJH">
+                                <rect key="frame" x="163" y="263" width="149" height="72"/>
+                                <color key="backgroundColor" red="0.63832461980932687" green="0.19242279522050232" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <state key="normal" title="Control">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
+                                <connections>
+                                    <segue destination="DM0-O1-EVf" kind="show" id="HZx-ec-gfJ"/>
+                                </connections>
+                            </button>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" fixedFrame="YES" image="home_image.png" translatesAutoresizingMaskIntoConstraints="NO" id="umH-yj-xcU">
+                                <rect key="frame" x="0.0" y="64" width="320" height="185"/>
+                            </imageView>
                             <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="77Y-ov-2yV">
-                                <rect key="frame" x="112" y="187" width="96" height="22"/>
-                                <state key="normal" title="Configure"/>
+                                <rect key="frame" x="6" y="263" width="149" height="72"/>
+                                <color key="backgroundColor" red="0.0" green="0.46340443442144608" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                                <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                <state key="normal" title="Configure">
+                                    <color key="titleColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                                </state>
                                 <connections>
                                     <segue destination="BYZ-38-t0r" kind="show" id="MUO-H3-5On"/>
                                 </connections>
                             </button>
-                            <button opaque="NO" contentMode="scaleToFill" fixedFrame="YES" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="rSl-yJ-zJH">
-                                <rect key="frame" x="125" y="246" width="70" height="30"/>
-                                <state key="normal" title="Control">
-                                    <color key="titleShadowColor" white="0.5" alpha="1" colorSpace="calibratedWhite"/>
-                                </state>
-                            </button>
                         </subviews>
-                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <color key="backgroundColor" red="0.60248557878526154" green="0.91913162114528812" blue="1" alpha="0.34000000000000002" colorSpace="calibratedRGB"/>
                     </view>
                     <navigationItem key="navigationItem" title="Home" id="1oK-gs-Fsv"/>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="cQA-Re-QvA" sceneMemberID="firstResponder"/>
             </objects>
             <point key="canvasLocation" x="159" y="-91"/>
+        </scene>
+        <!--Control-->
+        <scene sceneID="fuc-Kc-tcO">
+            <objects>
+                <viewController title="Control" id="DM0-O1-EVf" customClass="ControlViewController" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="1vy-6x-nDc"/>
+                        <viewControllerLayoutGuide type="bottom" id="Uke-Gd-fRw"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="OaQ-Xa-fXr">
+                        <rect key="frame" x="0.0" y="0.0" width="320" height="568"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <color key="backgroundColor" red="0.64059847049999996" green="0.90329774549999997" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+                    </view>
+                    <simulatedScreenMetrics key="simulatedDestinationMetrics" type="retina4"/>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="ufu-Ss-cpU" userLabel="First Responder" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="594" y="301"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="rRz-GE-hA4">
@@ -136,6 +169,7 @@
         </scene>
     </scenes>
     <resources>
+        <image name="home_image.png" width="553" height="310"/>
         <image name="qr_scan.png" width="231" height="224"/>
     </resources>
 </document>

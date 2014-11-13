@@ -42,33 +42,29 @@
 }
 
 // simple config
-- (int)rtk_sc_build_profile: (NSString *)ssid psw:(NSString *)password pin:(NSString *)pin
+- (int)rtk_pattern_build_profile: (NSString *)ssid psw:(NSString *)password pin:(NSString *)pin
 {
     // children will implement this function
     return RTK_FAILED;
 }
-- (int)rtk_sc_send: (NSNumber *)times
+- (int)rtk_pattern_send: (NSNumber *)times
 {
     // children will implement this function
     return RTK_FAILED;
 }
-- (int)rtk_sc_send_ack_packets
+- (int)rtk_pattern_send_ack_packets
 {
     // children will implement this function
     return RTK_FAILED;
 }
-- (int)rtk_sc_send_ack_packets:(unsigned int) ip
+- (int)rtk_pattern_send_ack_packets:(unsigned int) ip
 {
     // children will implement this function
     return RTK_FAILED;
 }
-- (void)rtk_sc_stop
+- (void)rtk_pattern_stop
 {
     // empty
-}
-- (void)rtk_sc_exit
-{
-    // children will implement this function
 }
 
 - (int)rtk_get_connected_sta_num
@@ -324,11 +320,11 @@
     // children will implement this function
 }
 
-- (NSMutableArray *)rtk_sc_get_config_list
+- (NSMutableArray *)rtk_pattern_get_config_list
 {
     return nil;
 }
-- (NSMutableArray *)rtk_sc_get_discover_list
+- (NSMutableArray *)rtk_pattern_get_discover_list
 {
     return nil;
 }

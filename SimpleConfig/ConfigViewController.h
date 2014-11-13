@@ -12,6 +12,7 @@
 #import <UIKit/UIKit.h>
 #import "SimpleConfig.h"
 #import "String.h"
+#import "ZBarSDK.h"
 
 typedef struct rtk_sc_context{
     unsigned int    m_mode;
@@ -21,16 +22,24 @@ typedef struct rtk_sc_context{
     unsigned char   m_recv_buf[MAX_BUF_LEN];
 }SC_CONTEXT;
 
-@interface ConfigViewController : UIViewController
+@interface ConfigViewController : UIViewController <ZBarReaderDelegate>
 {
 @private
+    // SC Related
     SC_CONTEXT  m_context;
+    
+    // QRCode Related
+    int         m_num ;
+    BOOL        m_upOrdown;
+    NSTimer     *m_qrcode_timer;
 }
 
 @property (retain, nonatomic) IBOutlet UITextField *m_input_ssid;
 @property (retain, nonatomic) IBOutlet UITextField *m_input_password;
 @property (retain, nonatomic) IBOutlet UITextField *m_input_pin;
 @property (retain, nonatomic) IBOutlet UIButton    *m_config_button;
+
+@property (strong, nonatomic) UIImageView          *m_qrscan_line;
 
 @property (strong, nonatomic) SimpleConfig         *simpleConfig;
 

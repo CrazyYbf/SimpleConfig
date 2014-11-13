@@ -1,22 +1,21 @@
 //
-//  PatternTwo.m
+//  PatternThree.m
 //  SimpleConfig
 //
-//  Created by Realsil on 14/11/6.
+//  Created by Realsil on 14/11/12.
 //  Copyright (c) 2014年 Realtek. All rights reserved.
 //
 
+#import "PatternThree.h"
 #import <Foundation/Foundation.h>
-#import "PatternTwo.h"
 #import <Foundation/Foundation.h>
 #import <CommonCrypto/CommonDigest.h>
 #import <CommonCrypto/CommonCryptor.h>
 #import <CommonCrypto/CommonHMAC.h>
 
 // private definitions
-#define PATTERN_TWO_DEF_PIN         @"57289961"
-const char *pattern_two_nonce_buffer="8CmT/ J(3_aE R_UFR}`mtwF=)Qfjtn^S_1/ffg<_C7yw's}?'_'n&2~Blm&_k?6";
-unsigned char pattern_two_key_iv[] = {0xA6,0xA6,0xA6,0xA6,0xA6,0xA6,0xA6,0xA6,0xA6};
+const char *pattern_three_nonce_buffer="8CmT/ J(3_aE R_UFR}`mtwF=)Qfjtn^S_1/ffg<_C7yw's}?'_'n&2~Blm&_k?6";
+unsigned char pattern_three_key_iv[] = {0xA6,0xA6,0xA6,0xA6,0xA6,0xA6,0xA6,0xA6,0xA6};
 #define BLKSIZE8                    (8)
 #define BLKSIZE                     (16)
 #define AES_WRAP_TIME               (6)
@@ -25,33 +24,32 @@ typedef union _block{
     unsigned char b[BLKSIZE];
 }block;
 
-#define PATTERN_TWO_SYNC_PKT_NUM    9
-#define PATTERN_TWO_SEQ_IDX         3
-#define PATTERN_TWO_ID_IDX          5
-#define PATTERN_TWO_DATA_IDX        5
-#define PATTERN_TWO_RANDOM_IDX      5
-#define PATTERN_TWO_CKSUM_IDX       4
-#define PATTERN_TWO_MAGIC_IDX0      3
-#define PATTERN_TWO_MAGIC_IDX1      4
-#define PATTERN_TWO_MAGIC_IDX2      5
-#define PATTERN_TWO_MAGIC_IDX3      5
-#define PATTERN_TWO_SEND_TIME       10
-#define PATTERN_TWO_RECEIVE_TIMEOUT 120
+#define PATTERN_THREE_SYNC_PKT_NUM    9
+#define PATTERN_THREE_SEQ_IDX         3
+#define PATTERN_THREE_ID_IDX          5
+#define PATTERN_THREE_DATA_IDX        5
+#define PATTERN_THREE_RANDOM_IDX      5
+#define PATTERN_THREE_CKSUM_IDX       4
+#define PATTERN_THREE_MAGIC_IDX0      3
+#define PATTERN_THREE_MAGIC_IDX1      4
+#define PATTERN_THREE_MAGIC_IDX2      5
+#define PATTERN_THREE_MAGIC_IDX3      5
+#define PATTERN_THREE_SEND_TIME       10
+#define PATTERN_THREE_RECEIVE_TIMEOUT 120
 
-@implementation PatternTwo
+@implementation PatternThree
 @synthesize m_configSocket, m_controlSocket;
 
 // initial
 - (id)init: (unsigned int)pattern_flag
 {
-    NSLog(@"PATTERN 2: init, &m_mode=%p", &m_mode);
+    NSLog(@"PATTERN 3: init, &m_mode=%p", &m_mode);
     NSError *err;
     
     /* init arguments */
-    m_pattern_name = PATTERN_TWO_NAME;
+    m_pattern_name = PATTERN_THREE_NAME;
     m_pattern_flag = [NSNumber numberWithInt: pattern_flag];
     m_mode = MODE_INIT;
-    m_pin = PATTERN_TWO_DEF_PIN;
     
     m_plain_len = m_key_len = m_crypt_len = 0;
     memset(m_aes_key_buf, 0x0, MAX_AES_KEY_LEN);
@@ -61,7 +59,7 @@ typedef union _block{
     
     m_config_list = [[NSMutableArray alloc] initWithObjects:nil];
     m_discover_list = [[NSMutableArray alloc] initWithObjects:nil];
-
+    
     /* init udp socket(multicast) */
     m_configSocket = [[AsyncUdpSocket alloc]initWithDelegate:self];
     [m_configSocket bindToPort:(LOCAL_PORT_NUM) error:&err]; //this port is udpSocket's port instead of dport
@@ -88,7 +86,7 @@ typedef union _block{
     unsigned char size = (sizeof(value)) & 0xFF;
     int ret;
     
-//    NSLog(@"Add TLV at offset %d: tag:%d len:%d value:%u", offset, tag, size, value);
+    //    NSLog(@"Add TLV at offset %d: tag:%d len:%d value:%u", offset, tag, size, value);
     memcpy(m_plain_buf+offset, &tag, TLV_T_BYTES);
     memcpy(m_plain_buf+offset+TLV_T_BYTES, &size, TLV_L_BYTES);
     memcpy(m_plain_buf+offset+TLV_T_L_BYTES, &value, sizeof(value));
@@ -106,7 +104,7 @@ typedef union _block{
     unsigned char size = len & 0xFF;
     int ret;
     
-//    NSLog(@"ADD TLV at offset %d: tag:%d len:%d value:%s", offset, tag, len, value);
+    //    NSLog(@"ADD TLV at offset %d: tag:%d len:%d value:%s", offset, tag, len, value);
     memcpy(m_plain_buf+offset, &tag, TLV_T_BYTES);
     memcpy(m_plain_buf+offset+TLV_T_BYTES, &size, TLV_L_BYTES);
     NSLog(@"len=%d, value=%s", len, value);
@@ -126,7 +124,7 @@ typedef union _block{
     unsigned char len = (strlen(_ssid)) & 0xFF;
     unsigned char tag = TAG_SSID & 0xFF;
     int ret;
-#if PATTERN_TWO_DBG
+#if PATTERN_THREE_DBG
     NSLog(@"offset:%d, ssid:%s", buf_offset, _ssid);
 #endif
     ret = [self add_tlv_string:buf_offset tag:tag len:len value:_ssid];
@@ -145,7 +143,7 @@ typedef union _block{
     unsigned char len = (strlen(_psw)) & 0xFF;
     unsigned char tag = TAG_PSW & 0xFF;
     int ret;
-#if PATTERN_TWO_DBG
+#if PATTERN_THREE_DBG
     NSLog(@"offset:%d, password:%s", buf_offset, _psw);
 #endif
     ret = [self add_tlv_string:buf_offset tag:tag len:len value:_psw];
@@ -155,7 +153,7 @@ typedef union _block{
 /* Add IP address to m_plain_buf */
 - (int)profile_add_ip:(unsigned int)buf_offset ip:(unsigned int)ip
 {
-#if PATTERN_TWO_DBG
+#if PATTERN_THREE_DBG
     NSLog(@"offset:%d, ip:%x", buf_offset, ip);
 #endif
     unsigned int _ip = htonl(ip);
@@ -213,7 +211,7 @@ typedef union _block{
     unsigned char md5_result[16];
     memset(buffer, '\0', 128);
     const char *tmp;
-    NSString *default_pin = m_pin;
+    //NSString *default_pin = m_pin;
     
     /* get SA */
     NSString *mac_addr = [self getMACAddress:"en0"];
@@ -237,14 +235,14 @@ typedef union _block{
 #endif
     
     /* PIN */
-    tmp = [default_pin UTF8String];
+    tmp = [m_pin UTF8String];
     pin_length = (int)strlen(tmp);
-    NSLog(@"pin(%d): %s(default PIN)",pin_length, tmp);
+    NSLog(@"pin(%d): %s(PIN)",pin_length, tmp);
     memcpy(buffer+len, tmp, pin_length);
     len+=pin_length;
     
     /* Nonce */
-    tmp = pattern_two_nonce_buffer;
+    tmp = pattern_three_nonce_buffer;
     NSLog(@"Nonce(%lubytes): %s", strlen(tmp), tmp);
     memcpy(buffer+len, tmp, strlen(tmp));
     len+=strlen(tmp);
@@ -256,7 +254,7 @@ typedef union _block{
     
     /* Generate key for HMAC_SHA1, using MD5_digest*/
     CC_MD5(buffer, len, md5_result);
-#if PATTERN_TWO_DBG
+#if PATTERN_THREE_DBG
     NSLog(@"MD5 buffer(%d): %s", len, buffer);
     NSLog(@"MD5 result: %02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X",
           md5_result[0], md5_result[1], md5_result[2], md5_result[3],
@@ -285,7 +283,7 @@ typedef union _block{
     //CC_SHA1(buffer, len, m_aes_key_buf);
     CCHmac(kCCHmacAlgSHA1, md5_result, 16, buffer, len, m_aes_key_buf);
     
-#if PATTERN_TWO_DBG
+#if PATTERN_THREE_DBG
     NSLog(@"After SHA1, got AES key: %02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X", m_aes_key_buf[0], m_aes_key_buf[1], m_aes_key_buf[2], m_aes_key_buf[3],m_aes_key_buf[4], m_aes_key_buf[5], m_aes_key_buf[6], m_aes_key_buf[7],
           m_aes_key_buf[8], m_aes_key_buf[9], m_aes_key_buf[10], m_aes_key_buf[11],
           m_aes_key_buf[12], m_aes_key_buf[13], m_aes_key_buf[14], m_aes_key_buf[15],m_aes_key_buf[16], m_aes_key_buf[17], m_aes_key_buf[18], m_aes_key_buf[19],
@@ -342,7 +340,7 @@ typedef union _block{
     
     memset(x.b, 0x0, BLKSIZE);
     memset(_x, 0x0, 32);
-    memcpy(A, pattern_two_key_iv, BLKSIZE8);
+    memcpy(A, pattern_three_key_iv, BLKSIZE8);
     for(i=0; i<nblk; i++)
         memcpy(&R[i], m_plain_buf + i*BLKSIZE8, BLKSIZE8);
     
@@ -410,14 +408,14 @@ typedef union _block{
     
     int ret;
     NSError *err;
-
+    
     char *payload = (char*)malloc((unsigned int)len);
     memset(payload, 0x31, len);
     NSData *data = [NSData dataWithBytes: payload length:(unsigned int)len];
-
+    
     NSString *host = [[NSString alloc] initWithString:[NSString stringWithFormat:@"%d.%d.%d.%d", (ip>>24)&0xFF, (ip>>16)&0xFF, (ip>>8)&0xFF, ip&0xFF]];
     
-    //NSLog(@"sendData 1......host=%@, port=%d", host, MCAST_PORT_NUM);
+    NSLog(@"P3: sendData 1......host=%@, port=%d", host, MCAST_PORT_NUM);
     [m_configSocket joinMulticastGroup:host error:&err];
     [m_configSocket receiveWithTimeout:-1 tag:0];
     BOOL result = [m_configSocket sendData:data toHost:host port:MCAST_PORT_NUM withTimeout:-1 tag:0];
@@ -444,7 +442,7 @@ typedef union _block{
     NSError *err;
     NSString *host = [[NSString alloc] initWithString:[NSString stringWithFormat:@"%d.%d.%d.%d", (ip>>24)&0xFF, (ip>>16)&0xFF, (ip>>8)&0xFF, ip&0xFF]];
     
-    //NSLog(@"sendData 2......host=%@, port=%d", host, MCAST_PORT_NUM);
+    NSLog(@"P3: sendData 2......host=%@, port=%d", host, MCAST_PORT_NUM);
     // send data by multicast
     [m_configSocket joinMulticastGroup:host error:&err];
     [m_configSocket receiveWithTimeout:-1 tag:0];
@@ -468,7 +466,7 @@ typedef union _block{
     
     NSString *host = [[NSString alloc] initWithString:[NSString stringWithFormat:@"%d.%d.%d.%d", (ip>>24)&0xFF, (ip>>16)&0xFF, (ip>>8)&0xFF, ip&0xFF]];
     //debug
-    //NSLog(@"sendData 3......host=%@, port=%d", host, UNICAST_PORT_NUM);
+    NSLog(@"P3: sendData 3......host=%@, port=%d", host, UNICAST_PORT_NUM);
     
     [m_controlSocket receiveWithTimeout:-1 tag:0];
     BOOL result = [m_controlSocket sendData:payload toHost:host port:UNICAST_PORT_NUM withTimeout:-1 tag:0];
@@ -489,29 +487,29 @@ typedef union _block{
     unsigned char mac[6] = {0x0};
     unsigned int i = 0;
     unsigned char mac_prefix[] = {0x01, 0x00, 0x5e};
-    unsigned int m_index = PATTERN_TWO_IDX;
+    unsigned int m_index = PATTERN_THREE_IDX;
     
     ptr = buffer;
     seq = 0;
-    for(; i<PATTERN_TWO_SYNC_PKT_NUM; i++)
+    for(; i<PATTERN_THREE_SYNC_PKT_NUM; i++)
     {
         memset(mac, 0x0, sizeof(mac));
         memcpy(mac, mac_prefix, sizeof(mac_prefix));
         // the 4th byte of mac
-        mac[PATTERN_TWO_SEQ_IDX] = seq;
+        mac[PATTERN_THREE_SEQ_IDX] = seq;
         // the 6th byte of mac
         if(i<=2)
-            mac[PATTERN_TWO_ID_IDX] = (m_index >> ((2-i)*8)) & 0xFF;
+            mac[PATTERN_THREE_ID_IDX] = (m_index >> ((2-i)*8)) & 0xFF;
         else if(i==3)
-            mac[PATTERN_TWO_DATA_IDX] = (PATTERN_TWO_SYNC_PKT_NUM + len);
+            mac[PATTERN_THREE_DATA_IDX] = (PATTERN_THREE_SYNC_PKT_NUM + len);
         else if(i==4)
-            mac[PATTERN_TWO_DATA_IDX] = ptr[PATTERN_TWO_MAGIC_IDX0-3]+ptr[3*1+PATTERN_TWO_MAGIC_IDX1-3]+ptr[3*2+PATTERN_TWO_MAGIC_IDX2-3]+ptr[3*3+PATTERN_TWO_MAGIC_IDX3-3];
+            mac[PATTERN_THREE_DATA_IDX] = ptr[PATTERN_THREE_MAGIC_IDX0-3]+ptr[3*1+PATTERN_THREE_MAGIC_IDX1-3]+ptr[3*2+PATTERN_THREE_MAGIC_IDX2-3]+ptr[3*3+PATTERN_THREE_MAGIC_IDX3-3];
         else if(i>=5){
             //NSLog(@"m_random[%d] = %d", (i-5), m_random[i-5]);
-            mac[PATTERN_TWO_RANDOM_IDX] = m_rand[i-5];
+            mac[PATTERN_THREE_RANDOM_IDX] = m_rand[i-5];
         }
         // the 5th byte of mac
-        mac[PATTERN_TWO_CKSUM_IDX] = [self CKSUM: mac len:6];
+        mac[PATTERN_THREE_CKSUM_IDX] = [self CKSUM: mac len:6];
         
         //NSLog(@"[sync]mac[3] %02x mac[4] %02x mac[5] %02x\n",mac[3],mac[4],mac[5]);
         memcpy(buffer, &mac[3], 3);
@@ -530,7 +528,7 @@ typedef union _block{
     //put sync information in MAC addr
     [self create_sync:buffer len:m_crypt_len];
     
-    for(i=0;i<PATTERN_TWO_SYNC_PKT_NUM;i++)
+    for(i=0;i<PATTERN_THREE_SYNC_PKT_NUM;i++)
     {
         // build multicast IP from MAC addr we just created
         ip=(MCAST_ADDR_PREFIX <<24) + (buffer[(3*i)]<<16)+(buffer[(3*i)+1]<<8)+(buffer[(3*i)+2]);
@@ -552,13 +550,13 @@ typedef union _block{
     mac[2]=0x5e;
     for(i=0; i<m_crypt_len; i++)
     {
-        mac[PATTERN_TWO_CKSUM_IDX]=0;
-        mac[PATTERN_TWO_SEQ_IDX]=(i+PATTERN_TWO_SYNC_PKT_NUM);
-        mac[PATTERN_TWO_DATA_IDX]=m_crypt_buf[i];
-        mac[PATTERN_TWO_CKSUM_IDX]=[self CKSUM:mac len:6];
+        mac[PATTERN_THREE_CKSUM_IDX]=0;
+        mac[PATTERN_THREE_SEQ_IDX]=(i+PATTERN_THREE_SYNC_PKT_NUM);
+        mac[PATTERN_THREE_DATA_IDX]=m_crypt_buf[i];
+        mac[PATTERN_THREE_CKSUM_IDX]=[self CKSUM:mac len:6];
         ip=((MCAST_ADDR_PREFIX)<<24) + (mac[3]<<16) + (mac[4]<<8) + (mac[5]);
         //NSLog(@"[data]mac[3] %02x mac[4] %02x mac[5] %02x\n",mac[3],mac[4],mac[5]);
-        ret = [self udp_send_multi_data_interface:ip len:mac[PATTERN_TWO_SEQ_IDX]];
+        ret = [self udp_send_multi_data_interface:ip len:mac[PATTERN_THREE_SEQ_IDX]];
         if (ret==RTK_FAILED)
             break;
     }
@@ -598,8 +596,9 @@ typedef union _block{
     
     /* MD5 digest, plain buffer is nonce+default_pin */
     unsigned char md5_result[16] = {0x0};
+    NSLog(@"m_pin : %@", m_pin);
     NSString *pin = m_pin;
-    const unsigned char *default_pin_char = (const unsigned char *)[pin cStringUsingEncoding:NSASCIIStringEncoding];
+    const unsigned char *default_pin_char = (const unsigned char *)[pin cStringUsingEncoding:NSUTF8StringEncoding];
     unsigned int default_pin_len = (unsigned int)(strlen(default_pin_char));
     NSLog(@"default_pin_char is(%d) %s", default_pin_len, default_pin_char);
     unsigned char md5_buffer[64+64] = {0x0};//note: default pin max length is 64 bytes
@@ -664,8 +663,9 @@ typedef union _block{
     
     /* MD5 digest, plain buffer is nonce+default_pin */
     unsigned char md5_result[16] = {0x0};
+    NSLog(@"m_pin : %@", m_pin);
     NSString *pin = m_pin;
-    const unsigned char *default_pin_char = (const unsigned char *)[pin cStringUsingEncoding:NSASCIIStringEncoding];
+    const unsigned char *default_pin_char = (const unsigned char *)[pin cStringUsingEncoding:NSUTF8StringEncoding];
     unsigned int default_pin_len = (unsigned int)(strlen(default_pin_char));
     NSLog(@"default_pin_char is(%d) %s", default_pin_len, default_pin_char);
     unsigned char md5_buffer[64+64] = {0x0};//note: default pin max length is 64 bytes
@@ -697,7 +697,7 @@ typedef union _block{
     return ret;
 }
 
-#if PATTERN_TWO_DBG
+#if PATTERN_THREE_DBG
 -(void) dump_dev_info: (struct dev_info *)dev
 {
     NSLog(@"======Dump dev_info======");
@@ -705,7 +705,8 @@ typedef union _block{
     NSLog(@"Status: %d", dev->status);
     NSLog(@"Device type: %d", dev->dev_type);
     NSLog(@"IP:%x", dev->ip);
-    NSLog(@"Name:%@", [NSString stringWithUTF8String:(const char *)(dev->extra_info)]);
+    //NSLog(@"Name:%@", [NSString stringWithUTF8String:(const char *)(dev->extra_info)]);
+    NSLog(@"Name:%@", [NSString stringWithCString:(const char *)(dev->extra_info) encoding:NSUTF8StringEncoding]);
 }
 #endif
 
@@ -727,7 +728,7 @@ typedef union _block{
     memcpy(&new_dev->ip, ip_translator, 4);
     
     memcpy(&new_dev->extra_info, data_p+ACK_OFFSET_DEV_NAME, len-MAC_ADDR_LEN-1-2-4);
-#if PATTERN_TWO_DBG
+#if PATTERN_THREE_DBG
     [self dump_dev_info:new_dev];
 #endif
 }
@@ -765,7 +766,7 @@ typedef union _block{
         ip_translator[1]=*(data_p+ACK_OFFSET_IP+2);
         ip_translator[0]=*(data_p+ACK_OFFSET_IP+3);
         memcpy(&old_dev.ip, ip_translator, 4);
-#if PATTERN_TWO_DBG
+#if PATTERN_THREE_DBG
         [self dump_dev_info:&old_dev];
 #endif
         if (old_dev.ip!=0) {
@@ -782,7 +783,7 @@ typedef union _block{
         
         return getIP;
     }
-
+    
 AddNewObj:
     {
         // new mac
@@ -812,7 +813,7 @@ AddNewObj:
     if (host==nil) {
         return false;
     }
-    NSLog(@"=============P2: Receive from host %@ port %d==================", host, port);
+    NSLog(@"=============P3: Receive from host %@ port %d==================", host, port);
     NSLog(@"m_mode(%p)=%d", &m_mode, m_mode);
     
     /* step 1: get the received data */
@@ -824,11 +825,11 @@ AddNewObj:
     }
     unsigned int data_length = (unsigned int)(data_p[2]);
     flag = data_p[0];
-   
-#if PATTERN_TWO_DBG
+    
+#if PATTERN_THREE_DBG
     // for debug
     NSLog(@"data in udp is %ld bytes: ", (unsigned long)[data length]);
-
+    
     int recv_idx = 0;
     for (recv_idx=0; recv_idx<(data_length+3); recv_idx++) {
         NSLog(@"[%d]: %02x", recv_idx, data_p[recv_idx]);
@@ -875,12 +876,15 @@ AddNewObj:
 /* ***********************EXTERNAL API************************** */
 - (int)rtk_pattern_build_profile: (NSString *)ssid psw:(NSString *)password pin:(NSString *)pin
 {
-    NSLog(@"PATTERN 2: build profile");
+    NSLog(@"PATTERN 3: build profile");
     int ret = RTK_FAILED;
+    // set pin
+    m_pin = [[NSString alloc] initWithString:pin];
+    
     // build plain buf
     ret = [self build_plain_buf:ssid psw:password];
     if(ret==RTK_FAILED){
-        NSLog(@"Pattern 2: rtk_sc_build_profile error 1");
+        NSLog(@"Pattern 3: rtk_sc_build_profile error 1");
         return ret;
     }
     
@@ -891,7 +895,7 @@ AddNewObj:
     ret = [self encrypt_profile];
     
     m_mode = MODE_CONFIG;
-    NSLog(@"Pattern2: build_profile: m_mode(%p)=%d", &m_mode, m_mode);
+    NSLog(@"Pattern3: build_profile: m_mode(%p)=%d", &m_mode, m_mode);
     [m_config_list removeAllObjects];
     
     return ret;
@@ -903,10 +907,10 @@ AddNewObj:
     unsigned int _times;
     _times = [times intValue];
     
-    //NSLog(@"======================Pattern 2:rtk_sc_start=======================");
-
+    NSLog(@"======================Pattern 3:rtk_sc_start=======================");
+    
     for(int i=0; i<_times; i++){
-        //NSLog(@"------Send %d-------", i);
+        NSLog(@"------Send %d-------", i);
         /* step1: send sync */
         ret = [self send_sync];
         if(ret==RTK_FAILED)
@@ -917,7 +921,7 @@ AddNewObj:
         if(ret==RTK_FAILED)
             break;
     }
-
+    
     if (ret==RTK_FAILED) {
         NSLog(@"rtk_sc_send failed");
     }

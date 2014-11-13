@@ -82,4 +82,13 @@ struct dev_info{
     unsigned char  extra_info[MAX_INFO_LEN];//name
 };
 
+typedef enum{
+    MODE_INIT = 0,
+    MODE_CONFIG,
+    MODE_WAIT_FOR_IP,
+    MODE_DISCOVER,
+    MODE_CONTROL,
+    MODE_ALERT,
+}PatternModes;
+
 #endif

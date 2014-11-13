@@ -15,22 +15,36 @@
 -(id)init
 {
     m_mode = MODE_INIT;
+    m_current_pattern = -1;
     m_shouldStop = false;
     m_timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(timerHandler:) userInfo:nil repeats:YES];
     config_list = [[NSMutableArray alloc] initWithObjects:nil];
     discover_list = [[NSMutableArray alloc] initWithObjects:nil];
-    
-    // init patterns simple config needs
-    m_pattern[PATTERN_TWO] = [[PatternTwo alloc] init:SC_USE_ENCRYPTION];
-    
+
     return [super init];
 }
 
 -(int)rtk_sc_config_start: (NSString *)ssid psw:(NSString *)password pin:(NSString *)pin
 {
     // actually we don't send here. It's timer handler's duty to send
+    int ret;
+    
     NSLog(@"rtk_sc_start_config");
-    int ret = [m_pattern[PATTERN_TWO] rtk_sc_build_profile:ssid psw:password pin:pin];
+
+    // base on the PIN input, decide to use Pattern
+    if (pin==nil || [pin isEqualToString:@""] || [pin intValue]==0){
+        m_pattern[PATTERN_TWO] = [[PatternTwo alloc] init:SC_USE_ENCRYPTION];
+        m_current_pattern = PATTERN_TWO;
+        m_pattern[PATTERN_THREE] = nil;
+    }
+    else{
+        m_pattern[PATTERN_THREE] = [[PatternThree alloc] init:SC_USE_ENCRYPTION];
+        m_current_pattern = PATTERN_THREE;
+        m_pattern[PATTERN_TWO] = nil;
+    }
+    
+    NSLog(@"simpleconfig: set pattern %d", m_current_pattern+1);
+    ret = [m_pattern[m_current_pattern] rtk_pattern_build_profile:ssid psw:password pin:pin];
     if (ret==RTK_FAILED)
         return ret;
     
@@ -82,11 +96,11 @@
 -(void)timerHandler:(id)sender
 {
     int status = RTK_FAILED;
-    unsigned int pattern_mode = [m_pattern[PATTERN_TWO] rtk_sc_get_mode];
+    unsigned int pattern_mode = [m_pattern[m_current_pattern] rtk_sc_get_mode];
     
     switch (m_mode) {
         case MODE_INIT:
-            NSLog(@"Standing by...");
+            //NSLog(@"Standing by...");
             break;
             
         case MODE_CONFIG:
@@ -94,7 +108,7 @@
                 // upper layer allows configuring
                 if (pattern_mode==MODE_CONFIG) {
                     // send config profile
-                    status = [m_pattern[PATTERN_TWO] rtk_sc_send:[NSNumber numberWithInt:PATTERN_TWO_SEND_PER_SEC]];
+                    status = [m_pattern[m_current_pattern] rtk_pattern_send:[NSNumber numberWithInt:SC_SEND_ROUND_PER_SEC]];
                     if (status == RTK_FAILED) {
                         NSLog(@"Err1");
                         m_mode = MODE_ALERT;
@@ -102,7 +116,7 @@
                 }else if(pattern_mode==MODE_WAIT_FOR_IP || pattern_mode==MODE_INIT){
                     m_mode = MODE_WAIT_FOR_IP;
                     // update config_list
-                    NSMutableArray *recv_list = [m_pattern[PATTERN_TWO] rtk_sc_get_config_list];
+                    NSMutableArray *recv_list = [m_pattern[m_current_pattern] rtk_pattern_get_config_list];
                     struct dev_info recv_dev;
                     NSValue *recv_dev_val = [recv_list objectAtIndex:[recv_list count]-1];
                     [recv_dev_val getValue:&recv_dev];
@@ -131,7 +145,7 @@
         case MODE_WAIT_FOR_IP:
             if(pattern_mode==MODE_INIT){
                 // update config_list
-                NSMutableArray *recv_list = [m_pattern[PATTERN_TWO] rtk_sc_get_config_list];
+                NSMutableArray *recv_list = [m_pattern[m_current_pattern] rtk_pattern_get_config_list];
                 struct dev_info recv_dev;
                 NSValue *recv_dev_val = [recv_list objectAtIndex:[recv_list count]-1];
                 [recv_dev_val getValue:&recv_dev];
