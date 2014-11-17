@@ -24,6 +24,32 @@
     return [super init];
 }
 
+-(void)dealloc
+{
+    [config_list dealloc];
+    [discover_list dealloc];
+    for (int i=0; i<SC_MAX_PATTERN_NUM; i++) {
+        if (m_pattern[i]!=nil) {
+            [m_pattern[i] dealloc];
+        }
+    }
+    
+    // must stop timer!
+    [m_timer invalidate];
+    [m_timer release];
+    [super dealloc];
+}
+
+-(void)rtk_sc_close_sock
+{
+    [m_pattern[m_current_pattern] rtk_sc_close_sock];
+}
+
+-(void)rtk_sc_reopen_sock
+{
+    [m_pattern[m_current_pattern] rtk_sc_reopen_sock];
+}
+
 -(int)rtk_sc_config_start: (NSString *)ssid psw:(NSString *)password pin:(NSString *)pin
 {
     // actually we don't send here. It's timer handler's duty to send

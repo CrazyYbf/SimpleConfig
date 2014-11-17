@@ -58,7 +58,6 @@ typedef union _block{
     memset(m_send_buf, 0x0, MAX_BUF_LEN);
     
     m_config_list = [[NSMutableArray alloc] initWithObjects:nil];
-    m_discover_list = [[NSMutableArray alloc] initWithObjects:nil];
     
     /* init udp socket(multicast) */
     m_configSocket = [[AsyncUdpSocket alloc]initWithDelegate:self];
@@ -72,6 +71,15 @@ typedef union _block{
     [m_controlSocket receiveWithTimeout:-1 tag:0];
     
     return [super init];
+}
+
+- (void)dealloc
+{
+    [m_configSocket dealloc];
+    [m_controlSocket dealloc];
+    [m_config_list dealloc];
+    NSLog(@"Pattern 3 dealloc");
+    [super dealloc];
 }
 
 - (unsigned int)rtk_sc_get_mode
@@ -814,7 +822,6 @@ AddNewObj:
         return false;
     }
     NSLog(@"=============P3: Receive from host %@ port %d==================", host, port);
-    NSLog(@"m_mode(%p)=%d", &m_mode, m_mode);
     
     /* step 1: get the received data */
     unsigned char flag;
@@ -938,9 +945,39 @@ AddNewObj:
 {
     return m_config_list;
 }
-- (NSMutableArray *)rtk_pattern_get_discover_list
+
+- (void)rtk_sc_close_sock
 {
-    return m_discover_list;
+    if (![m_configSocket isClosed]) {
+        NSLog(@"Pattern 3: close config socket");
+        [m_configSocket close];
+    }
+    
+    if (![m_controlSocket isClosed]) {
+        NSLog(@"Pattern 3: close control socket");
+        [m_controlSocket close];
+    }
+}
+
+- (void)rtk_sc_reopen_sock
+{
+    NSError *err;
+    if ([m_configSocket isClosed]) {
+        /* init udp socket(multicast) */
+        NSLog(@"Pattern 3: reopen config socket");
+        m_configSocket = [[AsyncUdpSocket alloc]initWithDelegate:self];
+        [m_configSocket bindToPort:(LOCAL_PORT_NUM) error:&err]; //this port is udpSocket's port instead of dport
+        [m_configSocket enableBroadcast:true error:&err];
+        [m_configSocket receiveWithTimeout:-1 tag:0];
+    }
+    
+    if ([m_controlSocket isClosed]) {
+        NSLog(@"Pattern 3: reopen control socket");
+        /* init control socket(unicast) */
+        m_controlSocket = [[AsyncUdpSocket alloc]initWithDelegate:self];
+        [m_controlSocket bindToPort:(LOCAL_PORT_NUM+1) error:&err];
+        [m_controlSocket receiveWithTimeout:-1 tag:0];
+    }
 }
 
 @end

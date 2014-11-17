@@ -32,7 +32,6 @@
     unsigned int        m_mode;                                 //current mode
     
     NSMutableArray      *m_config_list;                         // clients list that sent config ack
-    NSMutableArray      *m_discover_list;                       // clients list that send discover ack
 }
 
 // External APIs
@@ -47,12 +46,12 @@
 - (int)     rtk_pattern_send_ack_packets: (unsigned int) ip;
 - (void)    rtk_pattern_stop;
 - (NSMutableArray *)rtk_pattern_get_config_list;
-- (NSMutableArray *)rtk_pattern_get_discover_list;
 
 // discovery
 - (int)     rtk_get_connected_sta_num;
 - (NSMutableArray *) rtk_get_connected_sta_mac;
 
+#if 0
 // device control
 - (void)    rtk_sc_clear_device_list;
 - (NSData *)rtk_sc_gen_discover_packet;
@@ -66,6 +65,7 @@
 - (void)    rtk_sc_reset_control_pin;
 - (int)     rtk_sc_get_control_result;
 - (void)    rtk_sc_reset_control_result;
+#endif
 
 // helper functions
 - (unsigned int)getLocalIPAddress;
@@ -75,6 +75,8 @@
 - (void)rtk_dump_buffer:(unsigned char *)arr len:(int)len;
 - (unsigned char)CKSUM:(unsigned char *)data len:(int)len;
 - (int)CKSUM_OK:(unsigned char *)data len:(int)len;
+- (void)rtk_sc_close_sock;
+- (void)rtk_sc_reopen_sock;
 
 // debug functions
 @end

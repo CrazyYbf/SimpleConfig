@@ -78,7 +78,7 @@
     return nil;
 }
 
-
+#if 0
 // device control
 - (void)rtk_sc_clear_device_list
 {
@@ -133,6 +133,7 @@
 {
     // children will implement this function
 }
+#endif
 
 // helper functions
 - (unsigned int)getLocalIPAddress
@@ -324,8 +325,14 @@
 {
     return nil;
 }
-- (NSMutableArray *)rtk_pattern_get_discover_list
+
+- (void)rtk_sc_close_sock
 {
-    return nil;
+    // children will implement this function
+}
+
+- (void)rtk_sc_reopen_sock
+{
+    // children will implement this function
 }
 @end

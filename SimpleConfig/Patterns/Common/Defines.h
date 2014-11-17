@@ -46,6 +46,7 @@
 #define SCAN_DATA_LEN               (1+1+2+64+16+6+2)
 #define CONTROL_DATA_LEN            (1+1+2+64+16+16)
 #define ACK_TO_CONTROL_DATA_LEN     (1+1+2+64+16+16+1)
+#define RESP_MIN_LEN                (1+2+6+1+2+4)
 #define SCAN_PACKET_SEND_TIME       (3)
 #define CONTROL_PACKET_SEND_TIME    (50)
 
@@ -73,6 +74,9 @@
 #define ACK_OFFSET_DEV_TYPE         (10)
 #define ACK_OFFSET_IP               (12)
 #define ACK_OFFSET_DEV_NAME         (16)
+
+#define SC_USE_ENCRYPTION           0
+#define SC_NO_ENCRYPTION            PATTERN_USING_PLAIN
 
 struct dev_info{
     unsigned char  status;                  //BIT(0):connected BIT(1):profile saved

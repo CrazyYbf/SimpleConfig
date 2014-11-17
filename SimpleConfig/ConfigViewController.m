@@ -9,6 +9,7 @@
 #import <Foundation/Foundation.h>
 #import "ConfigViewController.h"
 #import <SystemConfiguration/CaptiveNetwork.h>
+#import "ClientViewController.h"
 
 @implementation ConfigViewController
 @synthesize m_input_ssid, m_input_password, m_input_pin, m_config_button;
@@ -33,11 +34,31 @@
     // Dispose of any resources that can be recreated.
 }
 
+- (void)viewDidDisappear:(BOOL)animated
+{
+    // Must release simpleConfig, so that its asyncUDPSocket delegate won't receive data
+    NSLog(@"viewDidDisappear");
+//    [simpleConfig dealloc];
+//    simpleConfig = nil;
+    [simpleConfig rtk_sc_close_sock];
+    [super viewDidDisappear:animated];
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+//    simpleConfig = [[SimpleConfig alloc] init];
+    [simpleConfig rtk_sc_reopen_sock];
+}
+
 - (void)dealloc {
     [m_input_ssid release];
     [m_input_password release];
     [m_input_pin release];
     [m_config_button release];
+    
+    [simpleConfig dealloc];
+    [m_context.m_timer invalidate];
+    [m_context.m_timer release];
     [super dealloc];
 }
 
@@ -106,6 +127,9 @@
 
 -(void)timerHandler: (NSTimer *)sender
 {
+    if (simpleConfig==nil) {
+        return;
+    }
     unsigned int sc_mode = [simpleConfig rtk_sc_get_mode];
     switch (sc_mode) {
         case MODE_INIT:
@@ -151,11 +175,11 @@
     
     dev_val = [list objectAtIndex:0];
     [dev_val getValue:&dev];
-    
+
     msg = [NSString stringWithFormat:@"Device info:\nMAC: %02x:%02x:%02x:%02x:%02x:%02x\nDevice type: %d\nName:%@", dev.mac[0], dev.mac[1],dev.mac[2],dev.mac[3],dev.mac[4],dev.mac[5], dev.dev_type, [NSString stringWithUTF8String:(const char *)(dev.extra_info)]];
     UIAlertView *alert = [[UIAlertView alloc]initWithTitle:SC_UI_ALERT_CONFIGURE_DONE message:msg delegate:self cancelButtonTitle:SC_UI_ALERT_OK otherButtonTitles:nil, nil];
     [alert show];
-    
+
     m_context.m_mode = MODE_INIT;
 }
 

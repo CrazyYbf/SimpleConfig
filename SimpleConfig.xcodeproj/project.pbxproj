@@ -30,7 +30,9 @@
 		FE4B73031A1363F400238A02 /* pick_bg@2x.png in Resources */ = {isa = PBXBuildFile; fileRef = FE4B73011A1363F400238A02 /* pick_bg@2x.png */; };
 		FE4B73071A137B9000238A02 /* PatternThree.m in Sources */ = {isa = PBXBuildFile; fileRef = FE4B73061A137B9000238A02 /* PatternThree.m */; };
 		FE4B73091A137D4500238A02 /* home_image.png in Resources */ = {isa = PBXBuildFile; fileRef = FE4B73081A137D4500238A02 /* home_image.png */; };
-		FE4B730C1A13808E00238A02 /* ControlViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FE4B730B1A13808E00238A02 /* ControlViewController.m */; };
+		FE4B73101A14968500238A02 /* DiscoverViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FE4B730F1A14968500238A02 /* DiscoverViewController.m */; };
+		FE4B73131A14973500238A02 /* ClientViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FE4B73121A14973500238A02 /* ClientViewController.m */; };
+		FE4B73191A15DE9700238A02 /* Scanner.m in Sources */ = {isa = PBXBuildFile; fileRef = FE4B73181A15DE9700238A02 /* Scanner.m */; };
 		FE61F80A1A0B0A170028225C /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = FE61F8091A0B0A170028225C /* main.m */; };
 		FE61F80D1A0B0A170028225C /* AppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = FE61F80C1A0B0A170028225C /* AppDelegate.m */; };
 		FE61F8101A0B0A170028225C /* ViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FE61F80F1A0B0A170028225C /* ViewController.m */; };
@@ -93,8 +95,12 @@
 		FE4B73051A137B9000238A02 /* PatternThree.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PatternThree.h; sourceTree = "<group>"; };
 		FE4B73061A137B9000238A02 /* PatternThree.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PatternThree.m; sourceTree = "<group>"; };
 		FE4B73081A137D4500238A02 /* home_image.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = home_image.png; sourceTree = "<group>"; };
-		FE4B730A1A13808E00238A02 /* ControlViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ControlViewController.h; sourceTree = "<group>"; };
-		FE4B730B1A13808E00238A02 /* ControlViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ControlViewController.m; sourceTree = "<group>"; };
+		FE4B730E1A14968500238A02 /* DiscoverViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DiscoverViewController.h; sourceTree = "<group>"; };
+		FE4B730F1A14968500238A02 /* DiscoverViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DiscoverViewController.m; sourceTree = "<group>"; };
+		FE4B73111A14973500238A02 /* ClientViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClientViewController.h; sourceTree = "<group>"; };
+		FE4B73121A14973500238A02 /* ClientViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClientViewController.m; sourceTree = "<group>"; };
+		FE4B73171A15DE9700238A02 /* Scanner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Scanner.h; sourceTree = "<group>"; };
+		FE4B73181A15DE9700238A02 /* Scanner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Scanner.m; sourceTree = "<group>"; };
 		FE61F8041A0B0A160028225C /* SimpleConfig.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = SimpleConfig.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		FE61F8081A0B0A170028225C /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		FE61F8091A0B0A170028225C /* main.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = main.m; sourceTree = "<group>"; };
@@ -228,6 +234,15 @@
 			path = Patterns/3;
 			sourceTree = "<group>";
 		};
+		FE4B73161A15DE5800238A02 /* Discover */ = {
+			isa = PBXGroup;
+			children = (
+				FE4B73171A15DE9700238A02 /* Scanner.h */,
+				FE4B73181A15DE9700238A02 /* Scanner.m */,
+			);
+			path = Discover;
+			sourceTree = "<group>";
+		};
 		FE61F7FB1A0B0A160028225C = {
 			isa = PBXGroup;
 			children = (
@@ -250,6 +265,7 @@
 		FE61F8061A0B0A160028225C /* SimpleConfig */ = {
 			isa = PBXGroup;
 			children = (
+				FE4B73161A15DE5800238A02 /* Discover */,
 				FE4B72D21A135B3D00238A02 /* Resource */,
 				FE61F82E1A0B0D2B0028225C /* Lib */,
 				FE61F82D1A0B0D200028225C /* Patterns */,
@@ -259,8 +275,10 @@
 				FE61F80F1A0B0A170028225C /* ViewController.m */,
 				FE4427791A11C093009E6A44 /* ConfigViewController.h */,
 				FE44277A1A11C0D3009E6A44 /* ConfigViewController.m */,
-				FE4B730A1A13808E00238A02 /* ControlViewController.h */,
-				FE4B730B1A13808E00238A02 /* ControlViewController.m */,
+				FE4B730E1A14968500238A02 /* DiscoverViewController.h */,
+				FE4B730F1A14968500238A02 /* DiscoverViewController.m */,
+				FE4B73111A14973500238A02 /* ClientViewController.h */,
+				FE4B73121A14973500238A02 /* ClientViewController.m */,
 				FE61F8111A0B0A170028225C /* Main.storyboard */,
 				FE61F8431A0B59380028225C /* SimpleConfig.h */,
 				FE61F8441A0B59960028225C /* SimpleConfig.m */,
@@ -467,15 +485,17 @@
 			files = (
 				FE61F8101A0B0A170028225C /* ViewController.m in Sources */,
 				FE44278D1A11D7A2009E6A44 /* AsyncSocket.m in Sources */,
+				FE4B73191A15DE9700238A02 /* Scanner.m in Sources */,
 				FE44277B1A11C0D3009E6A44 /* ConfigViewController.m in Sources */,
-				FE4B730C1A13808E00238A02 /* ControlViewController.m in Sources */,
 				FE61F8451A0B59960028225C /* SimpleConfig.m in Sources */,
 				FE61F83E1A0B4F020028225C /* PatternBase.m in Sources */,
 				FE61F80D1A0B0A170028225C /* AppDelegate.m in Sources */,
 				FE44278E1A11D7A2009E6A44 /* AsyncUdpSocket.m in Sources */,
+				FE4B73101A14968500238A02 /* DiscoverViewController.m in Sources */,
 				FE61F80A1A0B0A170028225C /* main.m in Sources */,
 				FE44277E1A11D06E009E6A44 /* PatternTwo.m in Sources */,
 				FE4B73071A137B9000238A02 /* PatternThree.m in Sources */,
+				FE4B73131A14973500238A02 /* ClientViewController.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

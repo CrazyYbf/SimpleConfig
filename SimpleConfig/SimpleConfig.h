@@ -13,9 +13,6 @@
 #import "PatternTwo.h"
 #import "PatternThree.h"
 
-#define SC_USE_ENCRYPTION           0
-#define SC_NO_ENCRYPTION            PATTERN_USING_PLAIN
-
 #define SC_SEND_ROUND_PER_SEC       10                      // send round per second
 #define SC_MAX_PATTERN_NUM          4                       // currently only supports at most 4 patterns
 
@@ -39,6 +36,8 @@
 -(int) rtk_sc_control_start:(NSString *)client_mac type:(unsigned char)control_type;
 
 -(unsigned int)rtk_sc_get_mode;
+-(void)rtk_sc_close_sock;
+-(void)rtk_sc_reopen_sock;
 
 @end
 
