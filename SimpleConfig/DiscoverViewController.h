@@ -8,6 +8,8 @@
 
 #import <UIKit/UIKit.h>
 #import "Scanner.h"
+#import "ClientListCell.h"
+#import "ClientViewController.h"
 
 @interface DiscoverViewController : UIViewController <UITableViewDataSource, UITableViewDelegate>
 {
@@ -15,6 +17,7 @@
     Scanner *m_scanner;
     BOOL    m_isLoading;
     NSTimer *m_updateTimer;
+    unsigned int m_picked;
 }
 
 @property (retain, nonatomic) IBOutlet UITableView  *discover_table;

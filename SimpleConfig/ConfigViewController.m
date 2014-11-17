@@ -12,7 +12,7 @@
 #import "ClientViewController.h"
 
 @implementation ConfigViewController
-@synthesize m_input_ssid, m_input_password, m_input_pin, m_config_button;
+@synthesize m_input_ssid, m_input_password, m_input_pin, m_config_button, m_control_button;
 @synthesize m_qrscan_line;
 @synthesize simpleConfig;
 
@@ -23,6 +23,7 @@
     [m_input_ssid addTarget:self action:@selector(textFieldDoneEditing:) forControlEvents:UIControlEventEditingDidEndOnExit];
     [m_input_password addTarget:self action:@selector(textFieldDoneEditing:) forControlEvents:UIControlEventEditingDidEndOnExit];
     [m_input_pin addTarget:self action:@selector(textFieldDoneEditing:) forControlEvents:UIControlEventEditingDidEndOnExit];
+    [m_control_button setHidden:YES];
     
     m_context.m_timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(timerHandler:) userInfo:nil repeats:YES];
     m_context.m_mode = MODE_INIT;
@@ -55,11 +56,28 @@
     [m_input_password release];
     [m_input_pin release];
     [m_config_button release];
+    [m_control_button release];
     
     [simpleConfig dealloc];
     [m_context.m_timer invalidate];
     [m_context.m_timer release];
+    
     [super dealloc];
+}
+
+#pragma mark - Navigation
+
+// In a storyboard-based application, you will often want to do a little preparation before navigation
+- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+    // Get the new view controller using [segue destinationViewController].
+    // Pass the selected object to the new view controller.
+
+    ClientViewController *client_vc = segue.destinationViewController;
+    struct dev_info dev;
+    NSValue *dev_val = [simpleConfig.config_list objectAtIndex:0];
+    [dev_val getValue:&dev];
+    
+    client_vc.sharedData = [[NSValue alloc] initWithBytes:&dev objCType:@encode(struct dev_info)];
 }
 
 /* Hide the keyboard when pushing "enter" */
@@ -133,6 +151,9 @@
     unsigned int sc_mode = [simpleConfig rtk_sc_get_mode];
     switch (sc_mode) {
         case MODE_INIT:
+            if ([self isWithIPNoName]) {
+                [self showControlButton];
+            }
             break;
         
         case MODE_CONFIG:
@@ -148,6 +169,35 @@
         default:
             break;
     }
+}
+
+-(BOOL)isWithIPNoName
+{
+    BOOL ret = NO;
+    struct dev_info dev;
+    NSValue *dev_val;
+    NSMutableArray *list = simpleConfig.config_list;
+    
+    if (list==nil || [list count]==0) {
+        return NO;
+    }
+    
+    NSLog(@"current list count=%d", [list count]);
+    dev_val = [list objectAtIndex:0];   // the earliest dev_info added
+    [dev_val getValue:&dev];
+    // check have ip
+    NSLog(@"ip of obj0: %x", dev.ip);
+    ret |= (dev.ip==0)?NO:YES;
+    
+    if (ret==NO)
+        return ret;
+    
+    // check have no name
+    NSString *curr_name = [NSString stringWithUTF8String:(const char *)(dev.extra_info)];
+    ret |= ([curr_name isEqualToString:@""] || [curr_name isEqualToString:@"\n"]);
+    NSLog(@"name of obj0: %@", curr_name);
+    
+    return ret;
 }
 
 -(void)showConfigList
@@ -180,6 +230,17 @@
     UIAlertView *alert = [[UIAlertView alloc]initWithTitle:SC_UI_ALERT_CONFIGURE_DONE message:msg delegate:self cancelButtonTitle:SC_UI_ALERT_OK otherButtonTitles:nil, nil];
     [alert show];
 
+    m_context.m_mode = MODE_WAIT_FOR_IP;
+}
+
+-(void)showControlButton
+{
+    if (m_context.m_mode!=MODE_WAIT_FOR_IP)
+        return;
+    
+    // TODO
+    [m_control_button setHidden:NO];
+    
     m_context.m_mode = MODE_INIT;
 }
 

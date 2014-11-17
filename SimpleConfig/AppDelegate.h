@@ -7,11 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "Defines.h"
 
 @interface AppDelegate : UIResponder <UIApplicationDelegate>
 
-@property (strong, nonatomic) UIWindow *window;
-
-
+@property (strong, nonatomic) UIWindow                 *window;
+@property (strong, nonatomic) id<UIApplicationDelegate>delagete;
+@property (strong, nonatomic) NSValue                  *sharedData;
 @end
 

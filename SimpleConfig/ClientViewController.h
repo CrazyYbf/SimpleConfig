@@ -11,10 +11,10 @@
 
 @interface ClientViewController : UIViewController
 
-@property (strong, nonatomic) NSValue               *dev_val;
-
 @property (retain, nonatomic) IBOutlet UILabel      *name_label;
 @property (retain, nonatomic) IBOutlet UILabel      *ip_label;
 @property (retain, nonatomic) IBOutlet UILabel      *mac_label;
 @property (retain, nonatomic) IBOutlet UIImageView  *type_img;
+
+@property (strong, nonatomic) NSValue               *sharedData;
 @end

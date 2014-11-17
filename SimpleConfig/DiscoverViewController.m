@@ -37,15 +37,24 @@
     // Dispose of any resources that can be recreated.
 }
 
-/*
+///*
 #pragma mark - Navigation
 
 // In a storyboard-based application, you will often want to do a little preparation before navigation
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
+    if (m_picked>[dev_array count]) {
+        return;
+    }
+    ClientViewController *client_vc = segue.destinationViewController;
+    struct dev_info dev;
+    NSValue *dev_val = [dev_array objectAtIndex:m_picked];
+    [dev_val getValue:&dev];
+    
+    client_vc.sharedData = [[NSValue alloc] initWithBytes:&dev objCType:@encode(struct dev_info)];
 }
-*/
+//*/
 
 - (void)dealloc {
     [discover_table release];
@@ -62,6 +71,7 @@
 
 - (void)viewWillAppear:(BOOL)animated
 {
+    NSLog(@"reopen socket");
     [m_scanner rtk_sc_reopen_sock];
 }
 
@@ -76,16 +86,14 @@
 
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    UITableViewCell *cell = nil;
     int index = (int)indexPath.row;
     struct dev_info dev;
     NSValue *dev_val;
-    if(cell==nil)
-        cell = [[UITableViewCell alloc]initWithStyle:UITableViewCellStyleSubtitle reuseIdentifier:@"DiscoverCell"];
+    ClientListCell *cell = (ClientListCell *)[tableView dequeueReusableCellWithIdentifier:@"DiscoverCell"];
     
     if (dev_array == nil) {
-        cell.textLabel.text = @"Device Name";
-        cell.detailTextLabel.text = @"Device MAC";
+        cell.cell_dev_name.text = @"Device Name";
+        cell.cell_dev_mac.text = @"Device MAC";
         return cell;
     }
     
@@ -95,12 +103,13 @@
             [dev_val getValue:&dev];
             
             NSString *dev_name = [NSString stringWithCString:(const char *)dev.extra_info encoding:NSUTF8StringEncoding];
-            if ([dev_name isEqualToString:@""] || [dev_name isEqualToString:@"\n"]) {
-                cell.textLabel.text = @"Untitled Device";
-            }else
-                cell.textLabel.text = dev_name;
-
-            cell.detailTextLabel.text = [NSString stringWithFormat:@"%02x:%02x:%02x:%02x:%02x:%02x", dev.mac[0], dev.mac[1], dev.mac[2], dev.mac[3], dev.mac[4], dev.mac[5]];;
+            if ([dev_name isEqualToString:@""] || [dev_name isEqualToString:@"\n"])
+                dev_name = @"Untitled";
+            
+            NSString *dev_mac = [NSString stringWithFormat:@"%02x:%02x:%02x:%02x:%02x:%02x", dev.mac[0], dev.mac[1], dev.mac[2], dev.mac[3], dev.mac[4], dev.mac[5]];
+            
+            [cell setContent:dev_name mac:dev_mac type:0];
+            
             break;
     }
     
@@ -109,7 +118,9 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-
+    NSLog(@"Select at row %d", indexPath.row);
+    m_picked = indexPath.row;
+    
     return;
 }
 

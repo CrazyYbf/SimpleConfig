@@ -180,6 +180,8 @@
                 NSValue *config_dev_val = [config_list objectAtIndex:[config_list count]-1];
                 [config_dev_val getValue:&config_dev];
                 
+                NSLog(@"recv_dev.ip=%x, config_dev.ip=%x", recv_dev.ip, config_dev.ip);
+                
                 // check have same mac and have got ip address. If so, update
                 if([self haveSameMac:recv_dev.mac mac2:config_dev.mac]==true && recv_dev.ip!=0){
                     [config_list replaceObjectAtIndex:[config_list count]-1 withObject:[recv_list objectAtIndex:[recv_list count]-1]];

@@ -53,6 +53,7 @@
     NSError *err;
     if ([scan_socket isClosed]) {
         NSLog(@"m_scanner reopen");
+        scan_socket = [[AsyncUdpSocket alloc]initWithDelegate:self];
         [scan_socket bindToPort:(LOCAL_PORT_NUM) error:&err]; //this port is udpSocket's port instead of dport
         [scan_socket enableBroadcast:true error:&err];
         [scan_socket receiveWithTimeout:-1 tag:0];

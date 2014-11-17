@@ -13,6 +13,7 @@
 #import "SimpleConfig.h"
 #import "String.h"
 #import "ZBarSDK.h"
+#import "ClientViewController.h"
 
 typedef struct rtk_sc_context{
     unsigned int    m_mode;
@@ -38,6 +39,7 @@ typedef struct rtk_sc_context{
 @property (retain, nonatomic) IBOutlet UITextField *m_input_password;
 @property (retain, nonatomic) IBOutlet UITextField *m_input_pin;
 @property (retain, nonatomic) IBOutlet UIButton    *m_config_button;
+@property (retain, nonatomic) IBOutlet UIButton    *m_control_button;
 
 @property (strong, nonatomic) UIImageView          *m_qrscan_line;
 

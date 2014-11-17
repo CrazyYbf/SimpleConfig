@@ -43,6 +43,7 @@
 		FE61F83E1A0B4F020028225C /* PatternBase.m in Sources */ = {isa = PBXBuildFile; fileRef = FE61F83D1A0B4F020028225C /* PatternBase.m */; };
 		FE61F8451A0B59960028225C /* SimpleConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = FE61F8441A0B59960028225C /* SimpleConfig.m */; };
 		FE61F84D1A10BC230028225C /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE61F84C1A10BC230028225C /* CFNetwork.framework */; };
+		FEAC1A551A19E60100EADE58 /* ClientListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = FEAC1A541A19E60100EADE58 /* ClientListCell.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -130,6 +131,8 @@
 		FE61F85B1A10BDF70028225C /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		FE61F85D1A10BE000028225C /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		FE61F85F1A10BE090028225C /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		FEAC1A531A19E60100EADE58 /* ClientListCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClientListCell.h; sourceTree = "<group>"; };
+		FEAC1A541A19E60100EADE58 /* ClientListCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClientListCell.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -277,6 +280,8 @@
 				FE44277A1A11C0D3009E6A44 /* ConfigViewController.m */,
 				FE4B730E1A14968500238A02 /* DiscoverViewController.h */,
 				FE4B730F1A14968500238A02 /* DiscoverViewController.m */,
+				FEAC1A531A19E60100EADE58 /* ClientListCell.h */,
+				FEAC1A541A19E60100EADE58 /* ClientListCell.m */,
 				FE4B73111A14973500238A02 /* ClientViewController.h */,
 				FE4B73121A14973500238A02 /* ClientViewController.m */,
 				FE61F8111A0B0A170028225C /* Main.storyboard */,
@@ -485,6 +490,7 @@
 			files = (
 				FE61F8101A0B0A170028225C /* ViewController.m in Sources */,
 				FE44278D1A11D7A2009E6A44 /* AsyncSocket.m in Sources */,
+				FEAC1A551A19E60100EADE58 /* ClientListCell.m in Sources */,
 				FE4B73191A15DE9700238A02 /* Scanner.m in Sources */,
 				FE44277B1A11C0D3009E6A44 /* ConfigViewController.m in Sources */,
 				FE61F8451A0B59960028225C /* SimpleConfig.m in Sources */,
