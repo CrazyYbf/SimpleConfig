@@ -44,15 +44,8 @@
 - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
     // Get the new view controller using [segue destinationViewController].
     // Pass the selected object to the new view controller.
-    if (m_picked>[dev_array count]) {
-        return;
-    }
-    ClientViewController *client_vc = segue.destinationViewController;
-    struct dev_info dev;
-    NSValue *dev_val = [dev_array objectAtIndex:m_picked];
-    [dev_val getValue:&dev];
-    
-    client_vc.sharedData = [[NSValue alloc] initWithBytes:&dev objCType:@encode(struct dev_info)];
+
+    m_segue = segue;
 }
 //*/
 
@@ -73,6 +66,13 @@
 {
     NSLog(@"reopen socket");
     [m_scanner rtk_sc_reopen_sock];
+    
+    // auto refresh
+    [dev_array removeAllObjects];
+    for (int i = 0; i<20; i++) {
+        [m_scanner rtk_sc_start_scan];
+    }
+    [discover_table reloadData];
 }
 
 /* -------------TableView DataSouce and Delegate-------------- */
@@ -119,8 +119,14 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
     NSLog(@"Select at row %d", indexPath.row);
-    m_picked = indexPath.row;
+
+    ClientViewController *client_vc = m_segue.destinationViewController;
+    struct dev_info dev;
+    NSValue *dev_val = [dev_array objectAtIndex:indexPath.row];
+    [dev_val getValue:&dev];
     
+    client_vc.sharedData = [[NSValue alloc] initWithBytes:&dev objCType:@encode(struct dev_info)];
+
     return;
 }
 

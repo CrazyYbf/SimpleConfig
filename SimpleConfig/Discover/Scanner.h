@@ -10,6 +10,7 @@
 #import "AsyncSocket.h"
 #import "AsyncUdpSocket.h"
 #import "Defines.h"
+#define SCANNER_DBG 1
 
 @interface Scanner : NSObject <AsyncUdpSocketDelegate>
 {

@@ -172,7 +172,7 @@
     }
     flag = data_p[0];
     
-#if PATTERN_THREE_DBG
+#if SCANNER_DBG
     // for debug
     NSLog(@"data in udp is %ld bytes: ", (unsigned long)[data length]);
     

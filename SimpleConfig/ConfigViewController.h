@@ -12,8 +12,8 @@
 #import <UIKit/UIKit.h>
 #import "SimpleConfig.h"
 #import "String.h"
-#import "ZBarSDK.h"
 #import "ClientViewController.h"
+#import "ZBarSDK.h"
 
 typedef struct rtk_sc_context{
     unsigned int    m_mode;
@@ -28,7 +28,6 @@ typedef struct rtk_sc_context{
 @private
     // SC Related
     SC_CONTEXT  m_context;
-    
     // QRCode Related
     int         m_num ;
     BOOL        m_upOrdown;
@@ -41,9 +40,9 @@ typedef struct rtk_sc_context{
 @property (retain, nonatomic) IBOutlet UIButton    *m_config_button;
 @property (retain, nonatomic) IBOutlet UIButton    *m_control_button;
 
-@property (strong, nonatomic) UIImageView          *m_qrscan_line;
-
 @property (strong, nonatomic) SimpleConfig         *simpleConfig;
+
+@property (strong, nonatomic) UIImageView          *m_qrscan_line;
 
 - (IBAction)rtk_start_listener:(id)sender;
 - (IBAction)rtk_scan_listener:(id)sender;

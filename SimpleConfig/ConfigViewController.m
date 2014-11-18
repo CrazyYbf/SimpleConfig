@@ -13,8 +13,8 @@
 
 @implementation ConfigViewController
 @synthesize m_input_ssid, m_input_password, m_input_pin, m_config_button, m_control_button;
-@synthesize m_qrscan_line;
 @synthesize simpleConfig;
+@synthesize m_qrscan_line;
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -38,10 +38,12 @@
 - (void)viewDidDisappear:(BOOL)animated
 {
     // Must release simpleConfig, so that its asyncUDPSocket delegate won't receive data
-    NSLog(@"viewDidDisappear");
+    NSLog(@"config viewDidDisappear");
 //    [simpleConfig dealloc];
 //    simpleConfig = nil;
     [simpleConfig rtk_sc_close_sock];
+    [m_context.m_timer invalidate];
+    [m_context.m_timer release];
     [super viewDidDisappear:animated];
 }
 
@@ -49,6 +51,8 @@
 {
 //    simpleConfig = [[SimpleConfig alloc] init];
     [simpleConfig rtk_sc_reopen_sock];
+    m_context.m_timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(timerHandler:) userInfo:nil repeats:YES];
+    NSLog(@"config view will appear");
 }
 
 - (void)dealloc {
@@ -101,7 +105,7 @@
 /* action responder */
 - (IBAction)rtk_start_listener:(id)sender
 {
-    if (m_context.m_mode == MODE_INIT) {
+    if (m_context.m_mode == MODE_INIT || m_context.m_mode == MODE_WAIT_FOR_IP) {
         // build profile and send
         m_context.m_mode = MODE_CONFIG;
         [m_config_button setTitle:SC_UI_STOP_BUTTON forState:UIControlStateNormal];
@@ -322,5 +326,4 @@
     //self.imageView.image = [info objectForKey:UIImagePickerControllerOriginalImage];
     [picker dismissViewControllerAnimated:YES completion:nil];
 }
-
 @end

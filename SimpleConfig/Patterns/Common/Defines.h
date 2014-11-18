@@ -19,9 +19,12 @@
 #define PATTERN_THREE_IDX           (PATTERN_THREE+1)
 #define PATTERN_FOUR_IDX            (PATTERN_FOUR+1)
 
-#define RTK_CONTINUE                (-2)
 #define RTK_FAILED                  (-1)
 #define RTK_SUCCEED                 (0)
+
+#define RTK_SC_CONTROL_SAVE         (0)                         // deprecated
+#define RTK_SC_CONTROL_RENAME       (1)
+#define RTK_SC_CONTROL_DELETE       (2)
 
 #define SC_RAND_MIN                 (48)
 #define SC_RAND_MAX                 (255)
@@ -47,6 +50,7 @@
 #define CONTROL_DATA_LEN            (1+1+2+64+16+16)
 #define ACK_TO_CONTROL_DATA_LEN     (1+1+2+64+16+16+1)
 #define RESP_MIN_LEN                (1+2+6+1+2+4)
+#define CONTROL_ACK_ACK_LEN         (64+16+16+1)
 #define SCAN_PACKET_SEND_TIME       (3)
 #define CONTROL_PACKET_SEND_TIME    (50)
 
@@ -62,6 +66,8 @@
 #define RSP_DEL_PROFILE             (BIT(5) | BIT(1) | BIT(0))
 #define RSP_RENAME_DEV              (BIT(5) | BIT(2))
 
+#define RTK_SC_CONTROL_PKT_ROUND    10
+
 #define LOCAL_PORT_NUM              (8864)
 #define UNICAST_PORT_NUM            (8864)
 #define MCAST_PORT_NUM              (18864)
@@ -75,7 +81,7 @@
 #define ACK_OFFSET_IP               (12)
 #define ACK_OFFSET_DEV_NAME         (16)
 
-#define SC_USE_ENCRYPTION           0
+#define SC_USE_ENCRYPTION           1
 #define SC_NO_ENCRYPTION            PATTERN_USING_PLAIN
 
 struct dev_info{

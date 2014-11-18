@@ -70,6 +70,8 @@ typedef union _block{
     [m_controlSocket bindToPort:(LOCAL_PORT_NUM+1) error:&err];
     [m_controlSocket receiveWithTimeout:-1 tag:0];
     
+    m_security_level = SC_USE_ENCRYPTION;
+    
     return [super init];
 }
 

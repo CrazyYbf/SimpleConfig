@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		FE3DEC891A1B43780026599C /* iPad_non_retina.png in Resources */ = {isa = PBXBuildFile; fileRef = FE3DEC811A1B43780026599C /* iPad_non_retina.png */; };
+		FE3DEC8A1A1B43780026599C /* iPad_non_Retina_old.png in Resources */ = {isa = PBXBuildFile; fileRef = FE3DEC821A1B43780026599C /* iPad_non_Retina_old.png */; };
+		FE3DEC8B1A1B43780026599C /* iPad_Retina.png in Resources */ = {isa = PBXBuildFile; fileRef = FE3DEC831A1B43780026599C /* iPad_Retina.png */; };
+		FE3DEC8C1A1B43780026599C /* iPad_retina_new.png in Resources */ = {isa = PBXBuildFile; fileRef = FE3DEC841A1B43780026599C /* iPad_retina_new.png */; };
+		FE3DEC8D1A1B43780026599C /* iPhone_non_retina.png in Resources */ = {isa = PBXBuildFile; fileRef = FE3DEC851A1B43780026599C /* iPhone_non_retina.png */; };
+		FE3DEC8E1A1B43780026599C /* iPhone_Retina.png in Resources */ = {isa = PBXBuildFile; fileRef = FE3DEC861A1B43780026599C /* iPhone_Retina.png */; };
+		FE3DEC8F1A1B43780026599C /* iPhone_Retina_old.png in Resources */ = {isa = PBXBuildFile; fileRef = FE3DEC871A1B43780026599C /* iPhone_Retina_old.png */; };
+		FE3DEC901A1B43780026599C /* Thumbs.db in Resources */ = {isa = PBXBuildFile; fileRef = FE3DEC881A1B43780026599C /* Thumbs.db */; };
 		FE44277B1A11C0D3009E6A44 /* ConfigViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = FE44277A1A11C0D3009E6A44 /* ConfigViewController.m */; };
 		FE44277E1A11D06E009E6A44 /* PatternTwo.m in Sources */ = {isa = PBXBuildFile; fileRef = FE44277D1A11D06E009E6A44 /* PatternTwo.m */; };
 		FE44278D1A11D7A2009E6A44 /* AsyncSocket.m in Sources */ = {isa = PBXBuildFile; fileRef = FE44278A1A11D7A2009E6A44 /* AsyncSocket.m */; };
@@ -44,6 +52,7 @@
 		FE61F8451A0B59960028225C /* SimpleConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = FE61F8441A0B59960028225C /* SimpleConfig.m */; };
 		FE61F84D1A10BC230028225C /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE61F84C1A10BC230028225C /* CFNetwork.framework */; };
 		FEAC1A551A19E60100EADE58 /* ClientListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = FEAC1A541A19E60100EADE58 /* ClientListCell.m */; };
+		FEAC1A5C1A1AE00000EADE58 /* Controller.m in Sources */ = {isa = PBXBuildFile; fileRef = FEAC1A5B1A1AE00000EADE58 /* Controller.m */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +66,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		FE3DEC811A1B43780026599C /* iPad_non_retina.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iPad_non_retina.png; sourceTree = "<group>"; };
+		FE3DEC821A1B43780026599C /* iPad_non_Retina_old.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iPad_non_Retina_old.png; sourceTree = "<group>"; };
+		FE3DEC831A1B43780026599C /* iPad_Retina.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iPad_Retina.png; sourceTree = "<group>"; };
+		FE3DEC841A1B43780026599C /* iPad_retina_new.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iPad_retina_new.png; sourceTree = "<group>"; };
+		FE3DEC851A1B43780026599C /* iPhone_non_retina.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iPhone_non_retina.png; sourceTree = "<group>"; };
+		FE3DEC861A1B43780026599C /* iPhone_Retina.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iPhone_Retina.png; sourceTree = "<group>"; };
+		FE3DEC871A1B43780026599C /* iPhone_Retina_old.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = iPhone_Retina_old.png; sourceTree = "<group>"; };
+		FE3DEC881A1B43780026599C /* Thumbs.db */ = {isa = PBXFileReference; lastKnownFileType = file; path = Thumbs.db; sourceTree = "<group>"; };
 		FE4427791A11C093009E6A44 /* ConfigViewController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ConfigViewController.h; sourceTree = "<group>"; };
 		FE44277A1A11C0D3009E6A44 /* ConfigViewController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ConfigViewController.m; sourceTree = "<group>"; };
 		FE44277C1A11D06E009E6A44 /* PatternTwo.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = PatternTwo.h; path = SimpleConfig/Patterns/2/PatternTwo.h; sourceTree = SOURCE_ROOT; };
@@ -133,6 +150,8 @@
 		FE61F85F1A10BE090028225C /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		FEAC1A531A19E60100EADE58 /* ClientListCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClientListCell.h; sourceTree = "<group>"; };
 		FEAC1A541A19E60100EADE58 /* ClientListCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClientListCell.m; sourceTree = "<group>"; };
+		FEAC1A5A1A1AE00000EADE58 /* Controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Controller.h; sourceTree = "<group>"; };
+		FEAC1A5B1A1AE00000EADE58 /* Controller.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = Controller.m; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -164,6 +183,21 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		FE3DEC801A1B43780026599C /* icon */ = {
+			isa = PBXGroup;
+			children = (
+				FE3DEC811A1B43780026599C /* iPad_non_retina.png */,
+				FE3DEC821A1B43780026599C /* iPad_non_Retina_old.png */,
+				FE3DEC831A1B43780026599C /* iPad_Retina.png */,
+				FE3DEC841A1B43780026599C /* iPad_retina_new.png */,
+				FE3DEC851A1B43780026599C /* iPhone_non_retina.png */,
+				FE3DEC861A1B43780026599C /* iPhone_Retina.png */,
+				FE3DEC871A1B43780026599C /* iPhone_Retina_old.png */,
+				FE3DEC881A1B43780026599C /* Thumbs.db */,
+			);
+			path = icon;
+			sourceTree = "<group>";
+		};
 		FE4427881A11D7A2009E6A44 /* AsyncSocket */ = {
 			isa = PBXGroup;
 			children = (
@@ -179,6 +213,7 @@
 		FE4B72D21A135B3D00238A02 /* Resource */ = {
 			isa = PBXGroup;
 			children = (
+				FE3DEC801A1B43780026599C /* icon */,
 				FE4B73081A137D4500238A02 /* home_image.png */,
 				FE4B73001A1363F400238A02 /* line@2x.png */,
 				FE4B73011A1363F400238A02 /* pick_bg@2x.png */,
@@ -268,6 +303,7 @@
 		FE61F8061A0B0A160028225C /* SimpleConfig */ = {
 			isa = PBXGroup;
 			children = (
+				FEAC1A591A1ADFEC00EADE58 /* Controller */,
 				FE4B73161A15DE5800238A02 /* Discover */,
 				FE4B72D21A135B3D00238A02 /* Resource */,
 				FE61F82E1A0B0D2B0028225C /* Lib */,
@@ -379,6 +415,15 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		FEAC1A591A1ADFEC00EADE58 /* Controller */ = {
+			isa = PBXGroup;
+			children = (
+				FEAC1A5A1A1AE00000EADE58 /* Controller.h */,
+				FEAC1A5B1A1AE00000EADE58 /* Controller.m */,
+			);
+			path = Controller;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -460,14 +505,22 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				FE3DEC8B1A1B43780026599C /* iPad_Retina.png in Resources */,
 				FE61F8131A0B0A170028225C /* Main.storyboard in Resources */,
+				FE3DEC8A1A1B43780026599C /* iPad_non_Retina_old.png in Resources */,
 				FE4B72F11A135D3B00238A02 /* zbar-back.png in Resources */,
 				FE4B72F41A135D3B00238A02 /* zbar-samples.png in Resources */,
 				FE4B72D41A135B3D00238A02 /* qr_scan.png in Resources */,
+				FE3DEC8E1A1B43780026599C /* iPhone_Retina.png in Resources */,
 				FE4B73031A1363F400238A02 /* pick_bg@2x.png in Resources */,
+				FE3DEC8D1A1B43780026599C /* iPhone_non_retina.png in Resources */,
 				FE61F8181A0B0A170028225C /* LaunchScreen.xib in Resources */,
 				FE4B72F21A135D3B00238A02 /* zbar-help.html in Resources */,
+				FE3DEC901A1B43780026599C /* Thumbs.db in Resources */,
 				FE4B72F31A135D3B00238A02 /* zbar-helpicons.png in Resources */,
+				FE3DEC891A1B43780026599C /* iPad_non_retina.png in Resources */,
+				FE3DEC8F1A1B43780026599C /* iPhone_Retina_old.png in Resources */,
+				FE3DEC8C1A1B43780026599C /* iPad_retina_new.png in Resources */,
 				FE4B73021A1363F400238A02 /* line@2x.png in Resources */,
 				FE4B73091A137D4500238A02 /* home_image.png in Resources */,
 				FE61F8151A0B0A170028225C /* Images.xcassets in Resources */,
@@ -499,6 +552,7 @@
 				FE44278E1A11D7A2009E6A44 /* AsyncUdpSocket.m in Sources */,
 				FE4B73101A14968500238A02 /* DiscoverViewController.m in Sources */,
 				FE61F80A1A0B0A170028225C /* main.m in Sources */,
+				FEAC1A5C1A1AE00000EADE58 /* Controller.m in Sources */,
 				FE44277E1A11D06E009E6A44 /* PatternTwo.m in Sources */,
 				FE4B73071A137B9000238A02 /* PatternThree.m in Sources */,
 				FE4B73131A14973500238A02 /* ClientViewController.m in Sources */,
@@ -624,7 +678,6 @@
 		FE61F8281A0B0A170028225C /* Debug */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = SimpleConfig/Info.plist;
@@ -643,7 +696,6 @@
 		FE61F8291A0B0A170028225C /* Release */ = {
 			isa = XCBuildConfiguration;
 			buildSettings = {
-				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				"CODE_SIGN_IDENTITY[sdk=iphoneos*]" = "iPhone Developer";
 				INFOPLIST_FILE = SimpleConfig/Info.plist;

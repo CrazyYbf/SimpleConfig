@@ -17,7 +17,7 @@
     Scanner *m_scanner;
     BOOL    m_isLoading;
     NSTimer *m_updateTimer;
-    unsigned int m_picked;
+    UIStoryboardSegue *m_segue;
 }
 
 @property (retain, nonatomic) IBOutlet UITableView  *discover_table;
