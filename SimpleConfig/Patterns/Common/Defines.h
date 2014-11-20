@@ -14,6 +14,8 @@
 #define PATTERN_THREE               2
 #define PATTERN_FOUR                3
 
+#define PATTERN_DEF_PIN             @"57289961"
+
 #define PATTERN_ONE_IDX             (PATTERN_ONE+1)
 #define PATTERN_TWO_IDX             (PATTERN_TWO+1)
 #define PATTERN_THREE_IDX           (PATTERN_THREE+1)
@@ -83,6 +85,8 @@
 
 #define SC_USE_ENCRYPTION           1
 #define SC_NO_ENCRYPTION            PATTERN_USING_PLAIN
+
+#define SC_DBG_CONFIG_RECV          1
 
 struct dev_info{
     unsigned char  status;                  //BIT(0):connected BIT(1):profile saved

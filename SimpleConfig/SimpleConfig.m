@@ -61,6 +61,7 @@
     if (pin==nil || [pin isEqualToString:@""] || [pin intValue]==0){
         m_pattern[PATTERN_TWO] = [[PatternTwo alloc] init:SC_USE_ENCRYPTION];
         m_current_pattern = PATTERN_TWO;
+        pin = PATTERN_DEF_PIN;
         m_pattern[PATTERN_THREE] = nil;
     }
     else{

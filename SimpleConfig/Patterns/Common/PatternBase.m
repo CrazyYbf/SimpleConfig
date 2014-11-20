@@ -32,8 +32,37 @@
 // initial
 - (id)init: (unsigned int)pattern_flag
 {
+    NSLog(@"Base: init");
     // children will implement this function
+    NSError *err;
+    
+    m_mode = MODE_INIT;
+    /* init udp socket(multicast) */
+    m_configSocket = [[AsyncUdpSocket alloc]initWithDelegate:self];
+    [m_configSocket bindToPort:(LOCAL_PORT_NUM) error:&err]; //this port is udpSocket's port instead of dport
+    [m_configSocket enableBroadcast:true error:&err];
+    [m_configSocket receiveWithTimeout:-1 tag:0];
+    
+    /* init control socket(unicast) */
+    m_controlSocket = [[AsyncUdpSocket alloc]initWithDelegate:self];
+    [m_controlSocket bindToPort:(LOCAL_PORT_NUM) error:&err];
+    [m_controlSocket receiveWithTimeout:-1 tag:0];
+    
+    /* init config result list */
+    m_config_list = [[NSMutableArray alloc] initWithObjects:nil];
+    m_security_level = SC_USE_ENCRYPTION;
+    
     return [super init];
+}
+
+- (void)dealloc
+{
+    [m_configSocket dealloc];
+    [m_controlSocket dealloc];
+    [m_config_list dealloc];
+    [m_pin release];
+    
+    [super dealloc];
 }
 
 - (unsigned int)rtk_sc_get_mode
@@ -41,7 +70,136 @@
     return m_mode;
 }
 
+- (void)rtk_sc_set_mode:(unsigned int)mode
+{
+    m_mode = mode;
+}
+
+- (void)rtk_sc_set_pin:(NSString *)pin
+{
+    m_pin = [[[NSString alloc] initWithString:pin] retain];
+}
+
+- (void)rtk_sc_close_sock
+{
+    if (![m_configSocket isClosed]) {
+        NSLog(@"close config socket");
+        [m_configSocket close];
+    }
+    
+    if (![m_controlSocket isClosed]) {
+        NSLog(@"close control socket");
+        [m_controlSocket close];
+    }
+}
+
+- (void)rtk_sc_reopen_sock
+{
+    NSError *err;
+    if ([m_configSocket isClosed]) {
+        /* init udp socket(multicast) */
+        NSLog(@"reopen config socket");
+        m_configSocket = [[AsyncUdpSocket alloc]initWithDelegate:self];
+        [m_configSocket bindToPort:(LOCAL_PORT_NUM) error:&err]; //this port is udpSocket's port instead of dport
+        [m_configSocket enableBroadcast:true error:&err];
+        [m_configSocket receiveWithTimeout:-1 tag:0];
+    }
+    
+    if ([m_controlSocket isClosed]) {
+        NSLog(@"reopen control socket");
+        /* init control socket(unicast) */
+        m_controlSocket = [[AsyncUdpSocket alloc]initWithDelegate:self];
+        [m_controlSocket bindToPort:(LOCAL_PORT_NUM) error:&err];
+        [m_controlSocket receiveWithTimeout:-1 tag:0];
+    }
+}
+
 // simple config
+/* Send interface 1 : send multicast data with payload length len */
+- (int)udp_send_multi_data_interface: (unsigned int)ip len:(unsigned char)len
+{
+    AsyncUdpSocket *sock = [self rtk_sc_get_config_sock];
+    if(sock == nil || [sock isClosed]){
+        NSLog(@"udpSocket doesn't exist!!!");
+        return RTK_FAILED;
+    }
+    
+    int ret;
+    NSError *err;
+    
+    char *payload = (char*)malloc((unsigned int)len);
+    memset(payload, 0x31, len);
+    NSData *data = [NSData dataWithBytes: payload length:(unsigned int)len];
+    
+    NSString *host = [[NSString alloc] initWithString:[NSString stringWithFormat:@"%d.%d.%d.%d", (ip>>24)&0xFF, (ip>>16)&0xFF, (ip>>8)&0xFF, ip&0xFF]];
+    
+    NSLog(@"P3: sendData 1......host=%@, port=%d", host, MCAST_PORT_NUM);
+    [sock joinMulticastGroup:host error:&err];
+    [sock receiveWithTimeout:-1 tag:0];
+    BOOL result = [sock sendData:data toHost:host port:MCAST_PORT_NUM withTimeout:-1 tag:0];
+    
+    // deal with multicast send result
+    if(!result)
+        ret = RTK_FAILED;
+    else
+        ret = RTK_SUCCEED;
+    
+    host = nil;
+    [host release];
+    return ret;
+}
+
+/* Send interface 2 : send multicast data with payload */
+- (int)udp_send_multi_data_interface: (unsigned int)ip payload: (NSData *)payload
+{
+    AsyncUdpSocket *sock = [self rtk_sc_get_config_sock];
+    int ret;
+    if(sock == nil){
+        NSLog(@"udpSocket doesn't exist!!!");
+        return -1;
+    }
+    NSError *err;
+    NSString *host = [[NSString alloc] initWithString:[NSString stringWithFormat:@"%d.%d.%d.%d", (ip>>24)&0xFF, (ip>>16)&0xFF, (ip>>8)&0xFF, ip&0xFF]];
+    
+    NSLog(@"P3: sendData 2......host=%@, port=%d", host, MCAST_PORT_NUM);
+    // send data by multicast
+    [sock joinMulticastGroup:host error:&err];
+    [sock receiveWithTimeout:-1 tag:0];
+    BOOL result = [sock sendData:payload toHost:host  port:MCAST_PORT_NUM withTimeout:-1 tag:0];
+    
+    // deal with multicast send result
+    if(!result)
+        ret=RTK_FAILED;
+    else
+        ret=RTK_SUCCEED;
+    
+    host = nil;
+    [host release];
+    return ret;
+}
+
+/* Send interface 3 : send unicast data */
+- (int)udp_send_unicast_interface: (unsigned int)ip payload: (NSData *)payload
+{
+    AsyncUdpSocket *sock = [self rtk_sc_get_control_sock];
+    int ret = RTK_FAILED;
+    
+    NSString *host = [[NSString alloc] initWithString:[NSString stringWithFormat:@"%d.%d.%d.%d", (ip>>24)&0xFF, (ip>>16)&0xFF, (ip>>8)&0xFF, ip&0xFF]];
+    //debug
+    NSLog(@"P3: sendData 3......host=%@, port=%d", host, UNICAST_PORT_NUM);
+    
+    [sock receiveWithTimeout:-1 tag:0];
+    BOOL result = [sock sendData:payload toHost:host port:UNICAST_PORT_NUM withTimeout:-1 tag:0];
+    if(!result)
+        ret=RTK_FAILED;
+    else
+        ret=RTK_SUCCEED;
+    
+    host = nil;
+    [host release];
+    return ret;
+}
+
 - (int)rtk_pattern_build_profile: (NSString *)ssid psw:(NSString *)password pin:(NSString *)pin
 {
     // children will implement this function
@@ -52,16 +210,141 @@
     // children will implement this function
     return RTK_FAILED;
 }
+
+/* Pattern two send ACK-ACK */
 - (int)rtk_pattern_send_ack_packets
 {
-    // children will implement this function
-    return RTK_FAILED;
+    unsigned int buffer[MAX_BUF_LEN] = {0x0};
+    int len = 0, ret = RTK_FAILED;
+    /* Flag */
+    unsigned char flag = REQ_ACK; // full 0 char means request to report(scan)
+    memcpy(buffer+len, &flag, 1);
+    len += 1;
+    
+    /* Security Level */
+    unsigned char security = m_security_level;
+    memcpy(buffer+len, &security, 1);
+    len += 1;
+    
+    /* Length: not included flag and length */
+    unsigned char length[2] = {0x0};
+    length[1] = SCAN_DATA_LEN-1-1-2; //exclude flag, security level and length
+    memcpy(buffer+len, length, 2);
+    len += 2;
+    
+    /* Nonce: a random value */
+    unsigned char nonce[64] = {0x0};
+    int nonce_idx = 0;
+    for (nonce_idx=0; nonce_idx<64; nonce_idx++) {
+        nonce[nonce_idx] = 65 + rand()%26;
+        //NSLog(@"[%d]: %02x", nonce_idx, nonce[nonce_idx]);
+    }
+    memcpy(buffer+len, nonce, 64);
+    len += 64;
+    
+    /* MD5 digest, plain buffer is nonce+default_pin */
+    unsigned char md5_result[16] = {0x0};
+    NSLog(@"m_pin : %@", m_pin);
+    NSString *pin = m_pin;
+    const unsigned char *default_pin_char = (const unsigned char *)[pin cStringUsingEncoding:NSUTF8StringEncoding];
+    unsigned int default_pin_len = (unsigned int)(strlen((const char *)default_pin_char));
+    NSLog(@"default_pin_char is(%d) %s", default_pin_len, default_pin_char);
+    unsigned char md5_buffer[64+64] = {0x0};//note: default pin max length is 64 bytes
+    memcpy(md5_buffer, nonce, 64);
+    memcpy(md5_buffer+64, default_pin_char, default_pin_len);
+    NSLog(@"md5_plain buffer is(%d) %s", (int)strlen((const char *)md5_buffer), md5_buffer);
+    CC_MD5(md5_buffer, 64+default_pin_len , md5_result);
+    NSLog(@"md5_encrypt result: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", md5_result[0],md5_result[1],md5_result[2],md5_result[3],md5_result[4],md5_result[5],md5_result[6],md5_result[7],md5_result[8],md5_result[9],md5_result[10],md5_result[11],md5_result[12],md5_result[13],md5_result[14],md5_result[15]);
+    
+    memcpy(buffer+len, md5_result, 16);
+    len += 16;
+    
+    /* Source MAC Address */
+    unsigned char sa[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff}; // full FF means send to all possible devices
+    memcpy(buffer+len, sa, 6);
+    len += 6;
+    
+    /* Device Type */
+    unsigned char deviceType[2] = {0xff, 0xff};
+    memcpy(buffer+len, deviceType, 2);
+    len += 2;
+    
+    /* save m_scan_buf to m_discover_data */
+    NSInteger size = SCAN_DATA_LEN;
+    NSData *ack_data = [NSData dataWithBytes:(const void*)buffer length:size];
+    
+    ret = [self udp_send_multi_data_interface:0xFFFFFFFF payload:ack_data];
+    
+    return ret;
 }
+
+/* send ack-ack unicast */
 - (int)rtk_pattern_send_ack_packets:(unsigned int) ip
 {
-    // children will implement this function
-    return RTK_FAILED;
+    unsigned int buffer[MAX_BUF_LEN] = {0x0};
+    int len = 0, ret = RTK_FAILED;
+    /* Flag */
+    unsigned char flag = REQ_ACK; // full 0 char means request to report(scan)
+    memcpy(buffer+len, &flag, 1);
+    len += 1;
+    
+    /* Security Level */
+    unsigned char security = m_security_level;
+    memcpy(buffer+len, &security, 1);
+    len += 1;
+    
+    /* Length: not included flag and length */
+    unsigned char length[2] = {0x0};
+    length[1] = SCAN_DATA_LEN-1-1-2; //exclude flag, security level and length
+    memcpy(buffer+len, length, 2);
+    len += 2;
+    
+    /* Nonce: a random value */
+    unsigned char nonce[64] = {0x0};
+    int nonce_idx = 0;
+    for (nonce_idx=0; nonce_idx<64; nonce_idx++) {
+        nonce[nonce_idx] = 65 + rand()%26;
+        //NSLog(@"[%d]: %02x", nonce_idx, nonce[nonce_idx]);
+    }
+    memcpy(buffer+len, nonce, 64);
+    len += 64;
+    
+    /* MD5 digest, plain buffer is nonce+default_pin */
+    unsigned char md5_result[16] = {0x0};
+    NSLog(@"m_pin : %@", m_pin);
+    NSString *pin = m_pin;
+    const unsigned char *default_pin_char = (const unsigned char *)[pin cStringUsingEncoding:NSUTF8StringEncoding];
+    unsigned int default_pin_len = (unsigned int)(strlen((const char *)default_pin_char));
+    NSLog(@"default_pin_char is(%d) %s", default_pin_len, default_pin_char);
+    unsigned char md5_buffer[64+64] = {0x0};//note: default pin max length is 64 bytes
+    memcpy(md5_buffer, nonce, 64);
+    memcpy(md5_buffer+64, default_pin_char, default_pin_len);
+    NSLog(@"md5_plain buffer is(%d) %s", (int)strlen((const char *)md5_buffer), md5_buffer);
+    CC_MD5(md5_buffer, 64+default_pin_len , md5_result);
+    NSLog(@"md5_encrypt result: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", md5_result[0],md5_result[1],md5_result[2],md5_result[3],md5_result[4],md5_result[5],md5_result[6],md5_result[7],md5_result[8],md5_result[9],md5_result[10],md5_result[11],md5_result[12],md5_result[13],md5_result[14],md5_result[15]);
+    
+    memcpy(buffer+len, md5_result, 16);
+    len += 16;
+    
+    /* Source MAC Address */
+    unsigned char sa[6] = {0xff, 0xff, 0xff, 0xff, 0xff, 0xff}; // full FF means send to all possible devices
+    memcpy(buffer+len, sa, 6);
+    len += 6;
+    
+    /* Device Type */
+    unsigned char deviceType[2] = {0xff, 0xff};
+    memcpy(buffer+len, deviceType, 2);
+    len += 2;
+    
+    /* save m_scan_buf to m_discover_data */
+    NSInteger size = SCAN_DATA_LEN;
+    NSData *ack_data = [NSData dataWithBytes:(const void*)buffer length:size];
+    
+    ret = [self udp_send_unicast_interface:ip payload:ack_data];
+    
+    return ret;
 }
+
 - (void)rtk_pattern_stop
 {
     // empty
@@ -77,63 +360,6 @@
     // children will implement this function
     return nil;
 }
-
-#if 0
-// device control
-- (void)rtk_sc_clear_device_list
-{
-    // children will implement this function
-}
-- (NSData *)rtk_sc_gen_discover_packet
-{
-    // children will implement this function
-    return nil;
-}
-- (void)rtk_sc_send_discover_packet: (NSData *)data ip:(unsigned int)ip
-{
-    // children will implement this function
-}
-- (NSMutableArray *)rtk_sc_get_discovered_devices
-{
-    // children will implement this function
-    return nil;
-}
-- (NSData *)rtk_sc_gen_control_packet: (unsigned int)control_type
-{
-    // children will implement this function
-    return nil;
-}
-- (void)rtk_sc_send_control_packet: (NSData *)data ip:(unsigned int)ip
-{
-    // children will implement this function
-}
-- (NSData *)rtk_sc_gen_rename_dev_packet: (NSString *)dev_name
-{
-    // children will implement this function
-    return nil;
-}
-- (void)rtk_sc_send_rename_dev_packet: (NSData *)data ip:(unsigned int)ip
-{
-    // children will implement this function
-}
-- (void)rtk_sc_set_control_pin: (NSString *)pin
-{
-    // children will implement this function
-}
-- (void)rtk_sc_reset_control_pin
-{
-    // children will implement this function
-}
-- (int)rtk_sc_get_control_result
-{
-    // children will implement this function
-    return RTK_FAILED;
-}
-- (void)rtk_sc_reset_control_result
-{
-    // children will implement this function
-}
-#endif
 
 // helper functions
 - (unsigned int)getLocalIPAddress
@@ -323,16 +549,190 @@
 
 - (NSMutableArray *)rtk_pattern_get_config_list
 {
-    return nil;
+    return m_config_list;
 }
 
-- (void)rtk_sc_close_sock
+- (AsyncUdpSocket *)rtk_sc_get_config_sock
 {
-    // children will implement this function
+    return m_configSocket;
 }
 
-- (void)rtk_sc_reopen_sock
+- (AsyncUdpSocket *)rtk_sc_get_control_sock
 {
-    // children will implement this function
+    return m_controlSocket;
 }
+
+/* ***********************Receive Delegate************************** */
+#if SC_DBG_CONFIG_RECV
+-(void) dump_dev_info: (struct dev_info *)dev
+{
+    NSLog(@"======Dump dev_info======");
+    NSLog(@"MAC: %02x:%02x:%02x:%02x:%02x:%02x", dev->mac[0], dev->mac[1],dev->mac[2],dev->mac[3],dev->mac[4],dev->mac[5]);
+    NSLog(@"Status: %d", dev->status);
+    NSLog(@"Device type: %d", dev->dev_type);
+    NSLog(@"IP:%x", dev->ip);
+    //NSLog(@"Name:%@", [NSString stringWithUTF8String:(const char *)(dev->extra_info)]);
+    NSLog(@"Name:%@", [NSString stringWithCString:(const char *)(dev->extra_info) encoding:NSUTF8StringEncoding]);
+}
+#endif
+
+-(void) build_dev_info:(struct dev_info *)new_dev data_p: (unsigned char *)data_p len: (unsigned int)len
+{
+    memcpy(new_dev->mac, data_p+ACK_OFFSET_MAC, MAC_ADDR_LEN);
+    new_dev->status = data_p[ACK_OFFSET_STATUS];
+    
+    unsigned char type_translator[2]={0x0};
+    type_translator[1] = *(data_p+ACK_OFFSET_DEV_TYPE);
+    type_translator[0] = *(data_p+ACK_OFFSET_DEV_TYPE+1);
+    memcpy(&new_dev->dev_type, type_translator, 2);
+    
+    unsigned char ip_translator[4]={0x0};
+    ip_translator[3]=*(data_p+ACK_OFFSET_IP);
+    ip_translator[2]=*(data_p+ACK_OFFSET_IP+1);
+    ip_translator[1]=*(data_p+ACK_OFFSET_IP+2);
+    ip_translator[0]=*(data_p+ACK_OFFSET_IP+3);
+    memcpy(&new_dev->ip, ip_translator, 4);
+    
+    memcpy(&new_dev->extra_info, data_p+ACK_OFFSET_DEV_NAME, len-MAC_ADDR_LEN-1-2-4);
+#if SC_DBG_CONFIG_RECV
+    [self dump_dev_info:new_dev];
+#endif
+}
+
+/* update the received data to m_config_list */
+-(int)updateConfigList: (unsigned char *)data_p len:(unsigned int)data_length
+{
+    int getIP = 0, exist = 0, i=0;
+    struct dev_info old_dev;
+    NSValue *old_dev_val;
+    int dev_total_num = (int)[m_config_list count];
+    
+    // no dev_info exist
+    if (dev_total_num==0)
+        goto AddNewObj;
+    
+    // have dev_info
+    for (i=0; i<dev_total_num; i++) {
+        old_dev_val = [m_config_list objectAtIndex:i];
+        [old_dev_val getValue:&old_dev];
+        
+        if(!memcmp(old_dev.mac, data_p+ACK_OFFSET_MAC, MAC_ADDR_LEN)){
+            // have the same mac dev in list, index is i.
+            exist = 1;
+            break;
+        }
+    }
+    
+    if (exist) {
+        // have dev with same mac
+        NSLog(@"exist this mac at index %d", i);
+        unsigned char ip_translator[4]={0x0};
+        ip_translator[3]=*(data_p+ACK_OFFSET_IP);
+        ip_translator[2]=*(data_p+ACK_OFFSET_IP+1);
+        ip_translator[1]=*(data_p+ACK_OFFSET_IP+2);
+        ip_translator[0]=*(data_p+ACK_OFFSET_IP+3);
+        memcpy(&old_dev.ip, ip_translator, 4);
+#if SC_DBG_CONFIG_RECV
+        [self dump_dev_info:&old_dev];
+#endif
+        if (old_dev.ip!=0) {
+            // ack2, got ip, update config_list at index i and send ack-ack2
+            getIP = 1;
+            NSValue *new_val = [NSValue valueWithBytes:&old_dev objCType:@encode(struct dev_info)];
+            [m_config_list replaceObjectAtIndex:i withObject:new_val];
+            [self rtk_pattern_send_ack_packets:old_dev.ip];
+        }else{
+            // ack-ack1, too many from client, just reply multicast
+            getIP = 0;
+            [self rtk_pattern_send_ack_packets];
+        }
+        
+        return getIP;
+    }
+    
+AddNewObj:
+    {
+        // new mac
+        NSLog(@"Add new object");
+        struct dev_info new_dev;
+        [self build_dev_info:&new_dev data_p:data_p len:data_length];
+        NSValue *new_val = [NSValue valueWithBytes:&new_dev objCType:@encode(struct dev_info)];
+        [m_config_list addObject:new_val];
+        
+        // send ack-ack, and change operation mode
+        if (new_dev.ip==0){
+            getIP = 0;
+            [self rtk_pattern_send_ack_packets];
+        }
+        else{
+            getIP = 1;
+            [self rtk_pattern_send_ack_packets:new_dev.ip];
+        }
+        
+        return getIP;
+    }
+}
+
+- (BOOL)onUdpSocket:(AsyncSocket *)sock didReceiveData:(NSData *)data withTag:(long)tag fromHost:(NSString *)host port:(UInt16)port
+{
+    if (host==nil) {
+        return NO;
+    }
+    NSLog(@"=============Receive from host %@ port %d==================", host, port);
+    
+    /* step 1: get the received data */
+    unsigned char flag;
+    unsigned char *data_p = (unsigned char*)[data bytes];
+    if (data_p == nil) {
+        NSLog(@"data received is nil!!!");
+        return NO;
+    }
+    unsigned int data_length = (unsigned int)(data_p[2]);
+    flag = data_p[0];
+    
+#if SC_DBG_CONFIG_RECV
+    NSLog(@"data in udp is %ld bytes: ", (unsigned long)[data length]);
+    for (int recv_idx=0; recv_idx<(data_length+3); recv_idx++) {
+        NSLog(@"[%d]: %02x", recv_idx, data_p[recv_idx]);
+    }
+    NSLog(@"m_mode=%d", m_mode);
+#endif
+    
+    /* step 2: parse the data flag */
+    switch (m_mode) {
+        case MODE_INIT:
+            if (flag==RSP_CONFIG) {
+                // whatever happens, don't update mode here.
+                [self updateConfigList:data_p len:data_length];
+            }
+            break;
+            
+        case MODE_CONFIG:
+            // configuring mode, wait for config ack1(maybe have ip, then it's ack2)
+            if (flag==RSP_CONFIG) {
+                // add new config device info to m_config_list
+                if ([self updateConfigList:data_p len:data_length])
+                    m_mode = MODE_INIT;
+                else
+                    m_mode = MODE_WAIT_FOR_IP;
+            }// ignore other received data
+            break;
+            
+        case MODE_WAIT_FOR_IP:
+            if (flag==RSP_CONFIG) {
+                /* 1. It's config ack2. check mac address is still the same. If so, only update ip address of dev_info
+                 * 2. Other clients reply ack
+                 */
+                if ([self updateConfigList:data_p len:data_length])
+                    m_mode = MODE_INIT;
+            }
+            break;
+            
+        default:
+            break;
+    }
+    
+    return TRUE;
+}
+
 @end

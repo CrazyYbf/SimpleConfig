@@ -164,9 +164,9 @@
     NSLog(@"Control: default pin = %@", psw);
     NSLog(@"Control: dev pin = %@", dev_pin);
     const unsigned char *psw_char = (const unsigned char *)[psw cStringUsingEncoding:NSASCIIStringEncoding];
-    unsigned int psw_len = (unsigned int)strlen(psw_char);
+    unsigned int psw_len = (unsigned int)strlen((const char *)psw_char);
     const unsigned char *pin_char = (const unsigned char*)[dev_pin cStringUsingEncoding:NSASCIIStringEncoding];
-    unsigned int dev_pin_len = (unsigned int)strlen(pin_char);
+    unsigned int dev_pin_len = (unsigned int)strlen((const char *)pin_char);
     
     unsigned char md5_buffer[64+64]={0x0};
     unsigned char md5_result[16] = {0x0};
@@ -239,9 +239,9 @@
     NSLog(@"Control ACK: default pin = %@", psw);
     NSLog(@"Control ACK: dev pin = %@", dev_pin);
     const unsigned char *psw_char = (const unsigned char *)[psw cStringUsingEncoding:NSASCIIStringEncoding];
-    unsigned int psw_len = (unsigned int)strlen(psw_char);
+    unsigned int psw_len = (unsigned int)strlen((const char *)psw_char);
     const unsigned char *pin_char = (const unsigned char*)[dev_pin cStringUsingEncoding:NSASCIIStringEncoding];
-    unsigned int dev_pin_len = (unsigned int)strlen(pin_char);
+    unsigned int dev_pin_len = (unsigned int)strlen((const char *)pin_char);
     
     unsigned char md5_buffer[64+64]={0x0};
     unsigned char md5_result[16] = {0x0};

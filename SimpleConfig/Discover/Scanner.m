@@ -94,12 +94,12 @@
     /* MD5 digest, plain buffer is nonce+default_pin */
     unsigned char md5_result[16] = {0x0};
     const unsigned char *default_pin_char = (const unsigned char *)[SC_SCAN_PIN cStringUsingEncoding:NSASCIIStringEncoding];
-    unsigned int default_pin_len = (unsigned int)(strlen(default_pin_char));
+    unsigned int default_pin_len = (unsigned int)(strlen((const char *)default_pin_char));
     NSLog(@"default_pin_char is(%d) %s", default_pin_len, default_pin_char);
     unsigned char md5_buffer[64+64] = {0x0};//note: default pin max length is 64 bytes
     memcpy(md5_buffer, nonce, 64);
     memcpy(md5_buffer+64, default_pin_char, default_pin_len);
-    NSLog(@"md5_plain buffer is(%d) %s", (int)strlen(md5_buffer), md5_buffer);
+    NSLog(@"md5_plain buffer is(%d) %s", (int)strlen((const char *)md5_buffer), md5_buffer);
     CC_MD5(md5_buffer, 64+default_pin_len , md5_result);
     NSLog(@"md5_encrypt result: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", md5_result[0],md5_result[1],md5_result[2],md5_result[3],md5_result[4],md5_result[5],md5_result[6],md5_result[7],md5_result[8],md5_result[9],md5_result[10],md5_result[11],md5_result[12],md5_result[13],md5_result[14],md5_result[15]);
     

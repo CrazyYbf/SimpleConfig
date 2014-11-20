@@ -21,10 +21,7 @@
 {
 @private
     unsigned char m_rand[4];
-    NSString      *m_pin;
 }
-@property (nonatomic, strong) AsyncUdpSocket *m_configSocket;
-@property (nonatomic, strong) AsyncUdpSocket *m_controlSocket;
 
 @end
 #endif

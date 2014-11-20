@@ -30,8 +30,10 @@
     unsigned char       m_send_buf[MAX_BUF_LEN];                //data to send
     
     unsigned int        m_mode;                                 //current mode
-    
-    NSMutableArray      *m_config_list;                         // clients list that sent config ack
+    NSString            *m_pin;                                 //PIN code if needed
+    NSMutableArray      *m_config_list;                         //clients list that sent config ack
+    AsyncUdpSocket      *m_configSocket;                        //multicast socket
+    AsyncUdpSocket      *m_controlSocket;                       //unicast socket(for ack)
 }
 
 // External APIs
@@ -51,22 +53,6 @@
 - (int)     rtk_get_connected_sta_num;
 - (NSMutableArray *) rtk_get_connected_sta_mac;
 
-#if 0
-// device control
-- (void)    rtk_sc_clear_device_list;
-- (NSData *)rtk_sc_gen_discover_packet;
-- (void)    rtk_sc_send_discover_packet: (NSData *)data ip:(unsigned int)ip;
-- (NSMutableArray *)rtk_sc_get_discovered_devices;
-- (NSData *)rtk_sc_gen_control_packet: (unsigned int)control_type;
-- (void)    rtk_sc_send_control_packet: (NSData *)data ip:(unsigned int)ip;
-- (NSData *)rtk_sc_gen_rename_dev_packet: (NSString *)dev_name;
-- (void)    rtk_sc_send_rename_dev_packet: (NSData *)data ip:(unsigned int)ip;
-- (void)    rtk_sc_set_control_pin: (NSString *)pin;
-- (void)    rtk_sc_reset_control_pin;
-- (int)     rtk_sc_get_control_result;
-- (void)    rtk_sc_reset_control_result;
-#endif
-
 // helper functions
 - (unsigned int)getLocalIPAddress;
 - (NSString *)getMACAddress: (char *)if_name;
@@ -77,6 +63,13 @@
 - (int)CKSUM_OK:(unsigned char *)data len:(int)len;
 - (void)rtk_sc_close_sock;
 - (void)rtk_sc_reopen_sock;
+- (void)rtk_sc_set_mode: (unsigned int)mode;
+- (void)rtk_sc_set_pin: (NSString *)pin;
+- (AsyncUdpSocket *)rtk_sc_get_config_sock;
+- (AsyncUdpSocket *)rtk_sc_get_control_sock;
+- (int)udp_send_multi_data_interface: (unsigned int)ip len:(unsigned char)len;
+- (int)udp_send_multi_data_interface: (unsigned int)ip payload: (NSData *)payload;
+- (int)udp_send_unicast_interface: (unsigned int)ip payload: (NSData *)payload;
 
 // debug functions
 @end

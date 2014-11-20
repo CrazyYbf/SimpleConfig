@@ -25,7 +25,7 @@
     [m_input_pin addTarget:self action:@selector(textFieldDoneEditing:) forControlEvents:UIControlEventEditingDidEndOnExit];
     [m_control_button setHidden:YES];
     
-    m_context.m_timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(timerHandler:) userInfo:nil repeats:YES];
+    m_context.m_timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(configTimerHandler:) userInfo:nil repeats:YES];
     m_context.m_mode = MODE_INIT;
     simpleConfig = [[SimpleConfig alloc] init];
 }
@@ -42,7 +42,7 @@
 //    [simpleConfig dealloc];
 //    simpleConfig = nil;
     [simpleConfig rtk_sc_close_sock];
-    //[m_context.m_timer invalidate];
+    [m_context.m_timer invalidate];
     //[m_context.m_timer release];
     ///m_context.m_timer = nil;
     [super viewDidDisappear:animated];
@@ -52,7 +52,7 @@
 {
 //    simpleConfig = [[SimpleConfig alloc] init];
     [simpleConfig rtk_sc_reopen_sock];
-    m_context.m_timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(timerHandler:) userInfo:nil repeats:YES];
+    m_context.m_timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(configTimerHandler:) userInfo:nil repeats:YES];
     NSLog(@"config view will appear");
 }
 
@@ -109,6 +109,7 @@
     if (m_context.m_mode == MODE_INIT || m_context.m_mode == MODE_WAIT_FOR_IP) {
         // build profile and send
         m_context.m_mode = MODE_CONFIG;
+        [m_control_button setHidden:YES];
         [m_config_button setTitle:SC_UI_STOP_BUTTON forState:UIControlStateNormal];
         [simpleConfig rtk_sc_config_start:m_input_ssid.text psw:m_input_password.text pin:m_input_pin.text];
     }else if(m_context.m_mode == MODE_CONFIG){
@@ -148,9 +149,10 @@
     return auto_ssid;
 }
 
--(void)timerHandler: (NSTimer *)sender
+-(void)configTimerHandler: (NSTimer *)sender
 {
-    if (simpleConfig==nil) {
+    if (simpleConfig==nil || sender==nil) {
+        NSLog(@"Timer error in config vc");
         return;
     }
     unsigned int sc_mode = [simpleConfig rtk_sc_get_mode];
@@ -187,11 +189,11 @@
         return NO;
     }
     
-    NSLog(@"current list count=%d", [list count]);
+    //NSLog(@"current list count=%d", [list count]);
     dev_val = [list objectAtIndex:0];   // the earliest dev_info added
     [dev_val getValue:&dev];
     // check have ip
-    NSLog(@"ip of obj0: %x", dev.ip);
+    //NSLog(@"ip of obj0: %x", dev.ip);
     ret |= (dev.ip==0)?NO:YES;
     
     if (ret==NO)
@@ -200,7 +202,7 @@
     // check have no name
     NSString *curr_name = [NSString stringWithUTF8String:(const char *)(dev.extra_info)];
     ret |= ([curr_name isEqualToString:@""] || [curr_name isEqualToString:@"\n"]);
-    NSLog(@"name of obj0: %@", curr_name);
+    //NSLog(@"name of obj0: %@", curr_name);
     
     return ret;
 }
