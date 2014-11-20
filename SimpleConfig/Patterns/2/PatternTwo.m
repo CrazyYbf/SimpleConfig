@@ -413,7 +413,7 @@ typedef union _block{
 /* Send interface 1 : send multicast data with payload length len */
 - (int)udp_send_multi_data_interface: (unsigned int)ip len:(unsigned char)len
 {
-    if(m_configSocket == nil){
+    if(m_configSocket == nil || [m_configSocket isClosed]){
         NSLog(@"udpSocket doesn't exist!!!");
         return RTK_FAILED;
     }

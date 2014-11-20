@@ -42,8 +42,9 @@
 //    [simpleConfig dealloc];
 //    simpleConfig = nil;
     [simpleConfig rtk_sc_close_sock];
-    [m_context.m_timer invalidate];
-    [m_context.m_timer release];
+    //[m_context.m_timer invalidate];
+    //[m_context.m_timer release];
+    ///m_context.m_timer = nil;
     [super viewDidDisappear:animated];
 }
 
