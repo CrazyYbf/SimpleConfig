@@ -86,7 +86,7 @@
 #define SC_USE_ENCRYPTION           1
 #define SC_NO_ENCRYPTION            PATTERN_USING_PLAIN
 
-#define SC_DBG_CONFIG_RECV          1
+#define SC_DBG_CONFIG_RECV          0
 
 struct dev_info{
     unsigned char  status;                  //BIT(0):connected BIT(1):profile saved

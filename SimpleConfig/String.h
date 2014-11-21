@@ -21,4 +21,5 @@
 #define SC_UI_ALERT_INPUT_PIN           @"Please input PIN code first!"
 #define SC_UI_ALERT_CONTROL_DONE        @"Operation succeed."
 #define SC_UI_ALERT_CONTROL_FAILED      @"Operation failed!"
+#define SC_UI_ALERT_WITHOUT_IP          @"Please wait until your device have connected to AP!"
 #endif

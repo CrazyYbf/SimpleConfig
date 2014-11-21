@@ -1,21 +1,21 @@
 //
-//  PatternTwo.m
+//  PatternFour.m
 //  SimpleConfig
 //
-//  Created by Realsil on 14/11/6.
+//  Created by Realsil on 14/11/20.
 //  Copyright (c) 2014年 Realtek. All rights reserved.
 //
 
+#import "PatternFour.h"
 #import <Foundation/Foundation.h>
-#import "PatternTwo.h"
 #import <Foundation/Foundation.h>
 #import <CommonCrypto/CommonDigest.h>
 #import <CommonCrypto/CommonCryptor.h>
 #import <CommonCrypto/CommonHMAC.h>
 
 // private definitions
-const char *pattern_two_nonce_buffer="8CmT/ J(3_aE R_UFR}`mtwF=)Qfjtn^S_1/ffg<_C7yw's}?'_'n&2~Blm&_k?6";
-unsigned char pattern_two_key_iv[] = {0xA6,0xA6,0xA6,0xA6,0xA6,0xA6,0xA6,0xA6,0xA6};
+const char *pattern_four_nonce_buffer="8CmT/ J(3_aE R_UFR}`mtwF=)Qfjtn^S_1/ffg<_C7yw's}?'_'n&2~Blm&_k?6";
+unsigned char pattern_four_key_iv[] = {0xA6,0xA6,0xA6,0xA6,0xA6,0xA6,0xA6,0xA6,0xA6};
 #define BLKSIZE8                    (8)
 #define BLKSIZE                     (16)
 #define AES_WRAP_TIME               (6)
@@ -24,26 +24,26 @@ typedef union _block{
     unsigned char b[BLKSIZE];
 }block;
 
-#define PATTERN_TWO_SYNC_PKT_NUM    9
-#define PATTERN_TWO_SEQ_IDX         3
-#define PATTERN_TWO_ID_IDX          5
-#define PATTERN_TWO_DATA_IDX        5
-#define PATTERN_TWO_RANDOM_IDX      5
-#define PATTERN_TWO_CKSUM_IDX       4
-#define PATTERN_TWO_MAGIC_IDX0      3
-#define PATTERN_TWO_MAGIC_IDX1      4
-#define PATTERN_TWO_MAGIC_IDX2      5
-#define PATTERN_TWO_MAGIC_IDX3      5
-#define PATTERN_TWO_SEND_TIME       10
-#define PATTERN_TWO_RECEIVE_TIMEOUT 120
+#define PATTERN_FOUR_SYNC_PKT_NUM    16
+#define PATTERN_FOUR_SEQ_IDX         3
+#define PATTERN_FOUR_ID_IDX          5
+#define PATTERN_FOUR_DATA_IDX        5
+#define PATTERN_FOUR_RANDOM_IDX      5
+#define PATTERN_FOUR_CKSUM_IDX       4
+#define PATTERN_FOUR_MAGIC_IDX0      3
+#define PATTERN_FOUR_MAGIC_IDX1      4
+#define PATTERN_FOUR_MAGIC_IDX2      5
+#define PATTERN_FOUR_MAGIC_IDX3      5
+#define PATTERN_FOUR_SEND_TIME       10
+#define PATTERN_FOUR_RECEIVE_TIMEOUT 120
 
-@implementation PatternTwo
+@implementation PatternFour
 
 // initial
 - (id)init: (unsigned int)pattern_flag
 {
     /* init arguments */
-    m_pattern_name = PATTERN_TWO_NAME;
+    m_pattern_name = PATTERN_FOUR_NAME;
     m_pattern_flag = [NSNumber numberWithInt: pattern_flag];
     
     m_plain_len = m_key_len = m_crypt_len = 0;
@@ -65,6 +65,11 @@ typedef union _block{
     return [super rtk_sc_get_mode];
 }
 
+- (NSMutableArray *)rtk_pattern_get_config_list
+{
+    return [super rtk_pattern_get_config_list];
+}
+
 - (void)rtk_sc_close_sock
 {
     [super rtk_sc_close_sock];
@@ -82,7 +87,7 @@ typedef union _block{
     unsigned char size = (sizeof(value)) & 0xFF;
     int ret;
     
-//    NSLog(@"Add TLV at offset %d: tag:%d len:%d value:%u", offset, tag, size, value);
+    //    NSLog(@"Add TLV at offset %d: tag:%d len:%d value:%u", offset, tag, size, value);
     memcpy(m_plain_buf+offset, &tag, TLV_T_BYTES);
     memcpy(m_plain_buf+offset+TLV_T_BYTES, &size, TLV_L_BYTES);
     memcpy(m_plain_buf+offset+TLV_T_L_BYTES, &value, sizeof(value));
@@ -100,7 +105,7 @@ typedef union _block{
     unsigned char size = len & 0xFF;
     int ret;
     
-//    NSLog(@"ADD TLV at offset %d: tag:%d len:%d value:%s", offset, tag, len, value);
+    //    NSLog(@"ADD TLV at offset %d: tag:%d len:%d value:%s", offset, tag, len, value);
     memcpy(m_plain_buf+offset, &tag, TLV_T_BYTES);
     memcpy(m_plain_buf+offset+TLV_T_BYTES, &size, TLV_L_BYTES);
     NSLog(@"len=%d, value=%s", len, value);
@@ -120,7 +125,7 @@ typedef union _block{
     unsigned char len = (strlen(_ssid)) & 0xFF;
     unsigned char tag = TAG_SSID & 0xFF;
     int ret;
-#if PATTERN_TWO_DBG
+#if PATTERN_FOUR_DBG
     NSLog(@"offset:%d, ssid:%s", buf_offset, _ssid);
 #endif
     ret = [self add_tlv_string:buf_offset tag:tag len:len value:_ssid];
@@ -139,7 +144,7 @@ typedef union _block{
     unsigned char len = (strlen(_psw)) & 0xFF;
     unsigned char tag = TAG_PSW & 0xFF;
     int ret;
-#if PATTERN_TWO_DBG
+#if PATTERN_FOUR_DBG
     NSLog(@"offset:%d, password:%s", buf_offset, _psw);
 #endif
     ret = [self add_tlv_string:buf_offset tag:tag len:len value:_psw];
@@ -149,7 +154,7 @@ typedef union _block{
 /* Add IP address to m_plain_buf */
 - (int)profile_add_ip:(unsigned int)buf_offset ip:(unsigned int)ip
 {
-#if PATTERN_TWO_DBG
+#if PATTERN_FOUR_DBG
     NSLog(@"offset:%d, ip:%x", buf_offset, ip);
 #endif
     unsigned int _ip = htonl(ip);
@@ -162,7 +167,7 @@ typedef union _block{
 
 - (void)gen_random: (unsigned char *)random
 {
-#if 1
+#if 0
     /* calculate random value, will be used in sync packets and for generating HMAC_SHA key(using MD5) */
     random[0] = (SC_RAND_MIN + rand()%(SC_RAND_MAX - SC_RAND_MIN)) & 0xFF;
     random[1] = (SC_RAND_MIN + rand()%(SC_RAND_MAX - SC_RAND_MIN)) & 0xFF;
@@ -209,7 +214,7 @@ typedef union _block{
     unsigned char md5_result[16];
     memset(buffer, '\0', 128);
     const char *tmp;
-    NSString *default_pin = m_pin;
+    //NSString *default_pin = m_pin;
     
     /* get SA */
     NSString *mac_addr = [self getMACAddress:"en0"];
@@ -233,14 +238,14 @@ typedef union _block{
 #endif
     
     /* PIN */
-    tmp = [default_pin UTF8String];
+    tmp = [m_pin UTF8String];
     pin_length = (int)strlen(tmp);
-    NSLog(@"pin(%d): %s(default PIN)",pin_length, tmp);
+    NSLog(@"pin(%d): %s(PIN)",pin_length, tmp);
     memcpy(buffer+len, tmp, pin_length);
     len+=pin_length;
     
     /* Nonce */
-    tmp = pattern_two_nonce_buffer;
+    tmp = pattern_four_nonce_buffer;
     NSLog(@"Nonce(%lubytes): %s", strlen(tmp), tmp);
     memcpy(buffer+len, tmp, strlen(tmp));
     len+=strlen(tmp);
@@ -252,7 +257,7 @@ typedef union _block{
     
     /* Generate key for HMAC_SHA1, using MD5_digest*/
     CC_MD5(buffer, len, md5_result);
-#if PATTERN_TWO_DBG
+#if PATTERN_FOUR_DBG
     NSLog(@"MD5 buffer(%d): %s", len, buffer);
     NSLog(@"MD5 result: %02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X",
           md5_result[0], md5_result[1], md5_result[2], md5_result[3],
@@ -281,7 +286,7 @@ typedef union _block{
     //CC_SHA1(buffer, len, m_aes_key_buf);
     CCHmac(kCCHmacAlgSHA1, md5_result, 16, buffer, len, m_aes_key_buf);
     
-#if PATTERN_TWO_DBG
+#if PATTERN_FOUR_DBG
     NSLog(@"After SHA1, got AES key: %02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X%02X", m_aes_key_buf[0], m_aes_key_buf[1], m_aes_key_buf[2], m_aes_key_buf[3],m_aes_key_buf[4], m_aes_key_buf[5], m_aes_key_buf[6], m_aes_key_buf[7],
           m_aes_key_buf[8], m_aes_key_buf[9], m_aes_key_buf[10], m_aes_key_buf[11],
           m_aes_key_buf[12], m_aes_key_buf[13], m_aes_key_buf[14], m_aes_key_buf[15],m_aes_key_buf[16], m_aes_key_buf[17], m_aes_key_buf[18], m_aes_key_buf[19],
@@ -338,7 +343,7 @@ typedef union _block{
     
     memset(x.b, 0x0, BLKSIZE);
     memset(_x, 0x0, 32);
-    memcpy(A, pattern_two_key_iv, BLKSIZE8);
+    memcpy(A, pattern_four_key_iv, BLKSIZE8);
     for(i=0; i<nblk; i++)
         memcpy(&R[i], m_plain_buf + i*BLKSIZE8, BLKSIZE8);
     
@@ -396,99 +401,126 @@ typedef union _block{
     return RTK_SUCCEED;
 }
 
-/* create and send sync */
-- (int)create_sync: (unsigned char *)buffer len:(int)len
+- (int)send_sync:(unsigned int)init length:(unsigned int) length
 {
-    unsigned char seq, *ptr;
-    unsigned char mac[6] = {0x0};
-    unsigned int i = 0;
-    unsigned char mac_prefix[] = {0x01, 0x00, 0x5e};
-    unsigned int m_index = PATTERN_TWO_IDX;
+    int sendTime, retval=-1, len_num;
     
-    ptr = buffer;
-    seq = 0;
-    for(; i<PATTERN_TWO_SYNC_PKT_NUM; i++)
-    {
-        memset(mac, 0x0, sizeof(mac));
-        memcpy(mac, mac_prefix, sizeof(mac_prefix));
-        // the 4th byte of mac
-        mac[PATTERN_TWO_SEQ_IDX] = seq;
-        // the 6th byte of mac
-        if(i<=2)
-            mac[PATTERN_TWO_ID_IDX] = (m_index >> ((2-i)*8)) & 0xFF;
-        else if(i==3)
-            mac[PATTERN_TWO_DATA_IDX] = (PATTERN_TWO_SYNC_PKT_NUM + len);
-        else if(i==4)
-            mac[PATTERN_TWO_DATA_IDX] = ptr[PATTERN_TWO_MAGIC_IDX0-3]+ptr[3*1+PATTERN_TWO_MAGIC_IDX1-3]+ptr[3*2+PATTERN_TWO_MAGIC_IDX2-3]+ptr[3*3+PATTERN_TWO_MAGIC_IDX3-3];
-        else if(i>=5){
-            //NSLog(@"m_random[%d] = %d", (i-5), m_random[i-5]);
-            mac[PATTERN_TWO_RANDOM_IDX] = m_rand[i-5];
+    for (sendTime=0; sendTime<PATTERN_FOUR_SYNC_PKT_NUM; sendTime++){
+        // send length 3 as init packet
+        retval = [super udp_send_bro_data_interface:init];
+        if(retval==-1){
+            NSLog(@"Send Sync Error!!!");
+            return retval;
         }
-        // the 5th byte of mac
-        mac[PATTERN_TWO_CKSUM_IDX] = [self CKSUM: mac len:6];
         
-        //NSLog(@"[sync]mac[3] %02x mac[4] %02x mac[5] %02x\n",mac[3],mac[4],mac[5]);
-        memcpy(buffer, &mac[3], 3);
-        buffer += 3;
-        seq++;
+        switch (init) {
+            case 3:
+                len_num = 1024;
+                break;
+            case 2:
+                len_num = 1024+24;
+                break;
+            case 11:
+                len_num = 1024+24*2;
+                break;
+            case 10:
+                len_num = 1024+24*3;
+                break;
+            default:
+                len_num = 1024;
+                break;
+        }
+        retval = [super udp_send_bro_data_interface: len_num + length];
+        if(retval==-1){
+            NSLog(@"Pattern 4: Sync Error!!!");
+            return retval;
+        }
     }
+    retval = 0;
+    return retval;
+}
+
+- (int)send_all
+{
+    unsigned int bit_sent=0, total_bits, total_pkt, packet_sent=0;
+    int seq=0, length=0, ret=RTK_FAILED;     // inc_mode=1: increase mode 0: decrease mode
+    unsigned int init_serial[4] = {3, 2, 11, 10};
+    unsigned int crypt_len=m_crypt_len, sync_len, send_round=0, init=init_serial[send_round];
+    
+    total_bits = crypt_len * 8;
+    total_pkt = total_bits / 4;
+    NSLog(@"crypte length = %d bytes(total_bits=%dbits)", crypt_len, total_bits);
+    
+#if PATTERN_FOUR_DBG
+    NSLog(@"***ENCRYPTED BUF***(%d bytes)", m_crypt_len);
+    for (int count=0; count<m_crypt_len; count++) {
+        NSLog(@"m_crypt_buf[%d]=%0x", count, m_crypt_buf[count]);
+    }
+#endif
+    
+    // send sync packets
+    // crypt_len is at most 128 bytes, at least 16 bytes and must be divisible by 8.
+    sync_len = total_pkt/16-1 ;
+    //NSLog(@"sync init=0x%x, length= 0x%x(%d)", init, sync_len, sync_len);
+    ret=[self send_sync:init length:sync_len];
+    if (ret==RTK_FAILED) {
+        NSLog(@"Pattern 4: send error 1!");
+        return ret;
+    }
+    // send payload
+    while (bit_sent<total_bits) {
+        length = 0;
+        
+        // build sequence number and send internal sync
+        if(seq==63){
+            seq = 1;
+            send_round++;
+            init = init_serial[send_round];
+            sync_len = (total_pkt-packet_sent)/16;
+            //NSLog(@"sync init=0x%x, length= 0x%x(%d)", init, sync_len, sync_len);
+            ret=[self send_sync:init length:sync_len];
+            if (ret==RTK_FAILED) {
+                NSLog(@"Pattern 4: send error 2!");
+                return ret;
+            }
+        }else
+            seq += 1;
+        //NSLog(@"seq = 0x%0x", seq);
+        length |= (seq&0x3F) << 4;
+        
+        // build payload and send data
+        if (packet_sent%2==0) {
+            length |= ((m_crypt_buf[packet_sent/2]&0xF0)>>4);
+        }else{
+            length |= (m_crypt_buf[packet_sent/2]&0x0F);
+        }
+        
+        //NSLog(@"length=0x%x(%d), seq=0x%x(%d), %@ of m_crypt_buf[%d]=%x", length, length, seq, seq, (packet_sent%2==0)?@"high bits":@"low bits", packet_sent/2, m_crypt_buf[packet_sent/2]);
+        ret=[super udp_send_bro_data_interface:length];
+        if (ret==RTK_FAILED) {
+            NSLog(@"Pattern 4: send error 3!");
+            return ret;
+        }
+        packet_sent++;
+        bit_sent += 4;
+    }
+    
     return RTK_SUCCEED;
 }
 
-/* send sync packets */
-- (int)send_sync
-{
-    int i, ret=RTK_FAILED;
-    unsigned int ip;
-    unsigned char buffer[32];
-    //put sync information in MAC addr
-    [self create_sync:buffer len:m_crypt_len];
-    
-    for(i=0;i<PATTERN_TWO_SYNC_PKT_NUM;i++)
-    {
-        // build multicast IP from MAC addr we just created
-        ip=(MCAST_ADDR_PREFIX <<24) + (buffer[(3*i)]<<16)+(buffer[(3*i)+1]<<8)+(buffer[(3*i)+2]);
-        ret = [self udp_send_multi_data_interface:ip len: buffer[3*i]];
-        if(ret==RTK_FAILED)
-            break;
-    }
-    
-    return ret;
-}
-
-/* send wifi profile */
-- (int)send_data
-{
-    unsigned int i, ip, ret=RTK_FAILED;
-    unsigned char mac[6];
-    mac[0]=0x1;
-    mac[1]=0x0;
-    mac[2]=0x5e;
-    for(i=0; i<m_crypt_len; i++)
-    {
-        mac[PATTERN_TWO_CKSUM_IDX]=0;
-        mac[PATTERN_TWO_SEQ_IDX]=(i+PATTERN_TWO_SYNC_PKT_NUM);
-        mac[PATTERN_TWO_DATA_IDX]=m_crypt_buf[i];
-        mac[PATTERN_TWO_CKSUM_IDX]=[self CKSUM:mac len:6];
-        ip=((MCAST_ADDR_PREFIX)<<24) + (mac[3]<<16) + (mac[4]<<8) + (mac[5]);
-        //NSLog(@"[data]mac[3] %02x mac[4] %02x mac[5] %02x\n",mac[3],mac[4],mac[5]);
-        ret = [self udp_send_multi_data_interface:ip len:mac[PATTERN_TWO_SEQ_IDX]];
-        if (ret==RTK_FAILED)
-            break;
-    }
-    return ret;
-}
-
-/* ***********************EXTERNAL API************************** */
+/*************************External APIs*********************************/
 - (int)rtk_pattern_build_profile: (NSString *)ssid psw:(NSString *)password pin:(NSString *)pin
 {
-    NSLog(@"PATTERN 2: build profile");
+    NSLog(@"======================PATTERN 4: build profile======================");
     int ret = RTK_FAILED;
-    // build plain buf
+    // set pin, use default PIN
+    pin = PATTERN_DEF_PIN;
     [super rtk_sc_set_pin:pin];
+    
+    // build plain buf
     ret = [self build_plain_buf:ssid psw:password];
     if(ret==RTK_FAILED){
-        NSLog(@"Pattern 2: rtk_sc_build_profile error 1");
+        NSLog(@"Pattern 4: rtk_sc_build_profile error 1");
         return ret;
     }
     
@@ -500,9 +532,8 @@ typedef union _block{
     
     //m_mode = MODE_CONFIG;
     [super rtk_sc_set_mode:MODE_CONFIG];
-    
-#if PATTERN_TWO_DBG
-    NSLog(@"Pattern2: m_mode(%p)=%d", &m_mode, m_mode);
+#if PATTERN_FOUR_DBG
+    NSLog(@"Pattern4: m_mode(%p)=%d", &m_mode, m_mode);
     NSLog(@"Base: m_mode=%d", [super rtk_sc_get_mode]);
 #endif
     [m_config_list removeAllObjects];
@@ -516,23 +547,19 @@ typedef union _block{
     unsigned int _times;
     _times = [times intValue];
     
-    //NSLog(@"======================Pattern 2:rtk_sc_start=======================");
-
+    NSLog(@"======================Pattern 4:rtk_sc_start=======================");
+    
     for(int i=0; i<_times; i++){
-        //NSLog(@"------Send %d-------", i);
+        NSLog(@"------Send %d-------", i);
         /* step1: send sync */
-        ret = [self send_sync];
-        if(ret==RTK_FAILED)
+        ret = [self send_all];
+        if (ret==RTK_FAILED) {
             break;
-        
-        /* step2: send data */
-        ret = [self send_data];
-        if(ret==RTK_FAILED)
-            break;
+        }
     }
-
+    
     if (ret==RTK_FAILED) {
-        NSLog(@"rtk_sc_send failed");
+        NSLog(@"Pattern 4: rtk_sc_send failed");
     }
     
     return ret;
@@ -542,10 +569,4 @@ typedef union _block{
 {
     [super rtk_pattern_stop];
 }
-
-- (NSMutableArray *)rtk_pattern_get_config_list
-{
-    return [super rtk_pattern_get_config_list];
-}
-
 @end

@@ -14,8 +14,12 @@
 
 -(id)init
 {
+    NSLog(@"simple config init");
     m_mode = MODE_INIT;
     m_current_pattern = -1;
+#if SC_SUPPORT_2X2
+    m_config_duration = -1;
+#endif
     m_shouldStop = false;
     m_timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(timerHandler:) userInfo:nil repeats:YES];
     config_list = [[NSMutableArray alloc] initWithObjects:nil];
@@ -33,21 +37,42 @@
             [m_pattern[i] dealloc];
         }
     }
-    
+#if SC_SUPPORT_2X2
+    [m_ssid release];
+    [m_password release];
+    [m_pin release];
+    [m_idev_model release];
+#endif
     // must stop timer!
     [m_timer invalidate];
-    [m_timer release];
     [super dealloc];
 }
 
 -(void)rtk_sc_close_sock
 {
+    NSLog(@"simpleconfig: rtk_sc_close_sock");
+    if ([m_timer isValid]) {
+        NSLog(@"invalidate simpleconfig timer");
+        [m_timer invalidate];
+    }
+    
     [m_pattern[m_current_pattern] rtk_sc_close_sock];
+    
+    if (m_current_pattern!=PATTERN_FOUR && m_config_duration>SC_PATTERN_SWITCH_THRESHOLD) {
+        [m_pattern[PATTERN_FOUR] rtk_sc_close_sock];
+    }
 }
 
 -(void)rtk_sc_reopen_sock
 {
+    NSLog(@"simpleconfig:rtk_sc_reopen_sock");
+    if (m_timer==nil) {
+        m_timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(timerHandler:) userInfo:nil repeats:YES];
+    }
     [m_pattern[m_current_pattern] rtk_sc_reopen_sock];
+    if (m_current_pattern!=PATTERN_FOUR && m_config_duration>SC_PATTERN_SWITCH_THRESHOLD) {
+        [m_pattern[PATTERN_FOUR] rtk_sc_reopen_sock];
+    }
 }
 
 -(int)rtk_sc_config_start: (NSString *)ssid psw:(NSString *)password pin:(NSString *)pin
@@ -69,6 +94,8 @@
         m_current_pattern = PATTERN_THREE;
         m_pattern[PATTERN_TWO] = nil;
     }
+    // init PATTERN 4, build its profile when needed!
+    m_pattern[PATTERN_FOUR] = [[PatternFour alloc] init:SC_USE_ENCRYPTION];
     
     NSLog(@"simpleconfig: set pattern %d", m_current_pattern+1);
     ret = [m_pattern[m_current_pattern] rtk_pattern_build_profile:ssid psw:password pin:pin];
@@ -78,6 +105,12 @@
     [config_list removeAllObjects];
     m_shouldStop = false;
     m_mode = MODE_CONFIG;
+#if SC_SUPPORT_2X2
+    m_config_duration = 0;
+    m_ssid = [[[NSString alloc] initWithString:ssid] retain];
+    m_password = [[[NSString alloc] initWithString:password] retain];
+    m_pin = [[[NSString alloc] initWithString:pin] retain];
+#endif
     return ret;
 }
 
@@ -120,10 +153,67 @@
     return true;
 }
 
+- (NSString *) platformString{
+    // Gets a string with the device model  6
+    size_t size;
+    sysctlbyname("hw.machine", NULL, &size, NULL, 0);
+    char *machine = malloc(size);
+    sysctlbyname("hw.machine", machine, &size, NULL, 0);
+    NSString *platform = [NSString stringWithCString:machine encoding:NSUTF8StringEncoding];
+    free(machine);
+    
+    if ([platform isEqualToString:@"iPhone1,1"])    return @"iPhone 2G";
+    if ([platform isEqualToString:@"iPhone1,2"])    return @"iPhone 3G";
+    if ([platform isEqualToString:@"iPhone2,1"])    return @"iPhone 3GS";
+    if ([platform isEqualToString:@"iPhone3,1"])    return @"iPhone 4";
+    if ([platform isEqualToString:@"iPhone3,2"])    return @"iPhone 4";
+    if ([platform isEqualToString:@"iPhone3,3"])    return @"iPhone 4 (CDMA)";
+    if ([platform isEqualToString:@"iPhone4,1"])    return @"iPhone 4S";
+    if ([platform isEqualToString:@"iPhone5,1"])    return @"iPhone 5";
+    if ([platform isEqualToString:@"iPhone5,2"])    return @"iPhone 5 (GSM+CDMA)";
+    
+    if ([platform isEqualToString:@"iPod1,1"])      return @"iPod Touch (1 Gen)";
+    if ([platform isEqualToString:@"iPod2,1"])      return @"iPod Touch (2 Gen)";
+    if ([platform isEqualToString:@"iPod3,1"])      return @"iPod Touch (3 Gen)";
+    if ([platform isEqualToString:@"iPod4,1"])      return @"iPod Touch (4 Gen)";
+    if ([platform isEqualToString:@"iPod5,1"])      return @"iPod Touch (5 Gen)";
+    
+    if ([platform isEqualToString:@"iPad1,1"])      return @"iPad";
+    if ([platform isEqualToString:@"iPad1,2"])      return @"iPad 3G";
+    if ([platform isEqualToString:@"iPad2,1"])      return @"iPad 2 (WiFi)";
+    if ([platform isEqualToString:@"iPad2,2"])      return @"iPad 2";
+    if ([platform isEqualToString:@"iPad2,3"])      return @"iPad 2 (CDMA)";
+    if ([platform isEqualToString:@"iPad2,4"])      return @"iPad 2";
+    if ([platform isEqualToString:@"iPad2,5"])      return @"iPad Mini (WiFi)";
+    if ([platform isEqualToString:@"iPad2,6"])      return @"iPad Mini";
+    if ([platform isEqualToString:@"iPad2,7"])      return @"iPad Mini (GSM+CDMA)";
+    if ([platform isEqualToString:@"iPad3,1"])      return @"iPad 3 (WiFi)";
+    if ([platform isEqualToString:@"iPad3,2"])      return @"iPad 3 (GSM+CDMA)";
+    if ([platform isEqualToString:@"iPad3,3"])      return @"iPad 3";
+    if ([platform isEqualToString:@"iPad3,4"])      return @"iPad 4 (WiFi)";
+    if ([platform isEqualToString:@"iPad3,5"])      return @"iPad 4";
+    if ([platform isEqualToString:@"iPad3,6"])      return @"iPad 4 (GSM+CDMA)";
+    if ([platform isEqualToString:@"i386"])         return @"Simulator";
+    if ([platform isEqualToString:@"x86_64"])       return @"Simulator";
+    
+    return platform;
+}
+
 -(void)timerHandler:(id)sender
 {
     int status = RTK_FAILED;
-    unsigned int pattern_mode = [m_pattern[m_current_pattern] rtk_sc_get_mode];
+    unsigned int pattern_mode;
+#if SC_SUPPORT_2X2
+    if (m_config_duration>SC_PATTERN_SWITCH_THRESHOLD && m_current_pattern!=PATTERN_FOUR) {
+        // close previous socket
+        [m_pattern[m_current_pattern] rtk_sc_close_sock];
+        m_current_pattern=PATTERN_FOUR;
+        [m_pattern[m_current_pattern] rtk_pattern_build_profile:m_ssid psw:m_password pin:m_pin];
+    }
+#endif
+    pattern_mode = [m_pattern[m_current_pattern] rtk_sc_get_mode];
+    
+    NSLog(@"SimpleConfig mode: %d; Pattern mode: %d", m_mode, pattern_mode);
     
     switch (m_mode) {
         case MODE_INIT:
@@ -135,7 +225,17 @@
                 // upper layer allows configuring
                 if (pattern_mode==MODE_CONFIG) {
                     // send config profile
-                    status = [m_pattern[m_current_pattern] rtk_pattern_send:[NSNumber numberWithInt:SC_SEND_ROUND_PER_SEC]];
+#if SC_SUPPORT_2X2
+                    // update duration
+                    m_config_duration++;
+                    {
+                        // duration less than SC_PATTERN_SWITCH_THRESHOLD
+                        if (m_current_pattern==PATTERN_FOUR) {
+                            status = [m_pattern[m_current_pattern] rtk_pattern_send:[NSNumber numberWithInt:1]];
+                        }else
+                            status = [m_pattern[m_current_pattern] rtk_pattern_send:[NSNumber numberWithInt:SC_SEND_ROUND_PER_SEC]];
+                    }
+#endif
                     if (status == RTK_FAILED) {
                         NSLog(@"Err1");
                         m_mode = MODE_ALERT;
@@ -184,7 +284,8 @@
                 NSLog(@"recv_dev.ip=%x, config_dev.ip=%x", recv_dev.ip, config_dev.ip);
                 
                 // check have same mac and have got ip address. If so, update
-                if([self haveSameMac:recv_dev.mac mac2:config_dev.mac]==true && recv_dev.ip!=0){
+                //if([self haveSameMac:recv_dev.mac mac2:config_dev.mac]==true && recv_dev.ip!=0){
+                if(recv_dev.ip!=0){
                     [config_list replaceObjectAtIndex:[config_list count]-1 withObject:[recv_list objectAtIndex:[recv_list count]-1]];
                     m_mode = MODE_INIT;
                 }
@@ -197,6 +298,9 @@
         case MODE_ALERT:
             [self showAlert];
             m_mode = MODE_INIT;
+#if SC_SUPPORT_2X2
+            m_config_duration = -1;
+#endif
             break;
             
         default:

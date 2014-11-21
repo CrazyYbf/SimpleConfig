@@ -70,6 +70,7 @@
 - (int)udp_send_multi_data_interface: (unsigned int)ip len:(unsigned char)len;
 - (int)udp_send_multi_data_interface: (unsigned int)ip payload: (NSData *)payload;
 - (int)udp_send_unicast_interface: (unsigned int)ip payload: (NSData *)payload;
+- (int)udp_send_bro_data_interface: (unsigned int)length;
 
 // debug functions
 @end

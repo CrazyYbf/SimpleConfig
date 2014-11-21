@@ -50,6 +50,7 @@
 		FE61F83E1A0B4F020028225C /* PatternBase.m in Sources */ = {isa = PBXBuildFile; fileRef = FE61F83D1A0B4F020028225C /* PatternBase.m */; };
 		FE61F8451A0B59960028225C /* SimpleConfig.m in Sources */ = {isa = PBXBuildFile; fileRef = FE61F8441A0B59960028225C /* SimpleConfig.m */; };
 		FE61F84D1A10BC230028225C /* CFNetwork.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FE61F84C1A10BC230028225C /* CFNetwork.framework */; };
+		FE8036121A1DBE12006D6ABB /* PatternFour.m in Sources */ = {isa = PBXBuildFile; fileRef = FE8036111A1DBE12006D6ABB /* PatternFour.m */; };
 		FEAC1A551A19E60100EADE58 /* ClientListCell.m in Sources */ = {isa = PBXBuildFile; fileRef = FEAC1A541A19E60100EADE58 /* ClientListCell.m */; };
 		FEAC1A5C1A1AE00000EADE58 /* Controller.m in Sources */ = {isa = PBXBuildFile; fileRef = FEAC1A5B1A1AE00000EADE58 /* Controller.m */; };
 /* End PBXBuildFile section */
@@ -146,6 +147,8 @@
 		FE61F85B1A10BDF70028225C /* SystemConfiguration.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SystemConfiguration.framework; path = System/Library/Frameworks/SystemConfiguration.framework; sourceTree = SDKROOT; };
 		FE61F85D1A10BE000028225C /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
 		FE61F85F1A10BE090028225C /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
+		FE8036101A1DBE12006D6ABB /* PatternFour.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = PatternFour.h; sourceTree = "<group>"; };
+		FE8036111A1DBE12006D6ABB /* PatternFour.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = PatternFour.m; sourceTree = "<group>"; };
 		FEAC1A531A19E60100EADE58 /* ClientListCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ClientListCell.h; sourceTree = "<group>"; };
 		FEAC1A541A19E60100EADE58 /* ClientListCell.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = ClientListCell.m; sourceTree = "<group>"; };
 		FEAC1A5A1A1AE00000EADE58 /* Controller.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = Controller.h; sourceTree = "<group>"; };
@@ -357,6 +360,7 @@
 		FE61F82D1A0B0D200028225C /* Patterns */ = {
 			isa = PBXGroup;
 			children = (
+				FE80360F1A1DBDF1006D6ABB /* 4 */,
 				FE4B73041A13798C00238A02 /* 3 */,
 				FE61F83F1A0B57CB0028225C /* 2 */,
 				FE61F83A1A0B4F020028225C /* Common */,
@@ -410,6 +414,16 @@
 				FE61F84C1A10BC230028225C /* CFNetwork.framework */,
 			);
 			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		FE80360F1A1DBDF1006D6ABB /* 4 */ = {
+			isa = PBXGroup;
+			children = (
+				FE8036101A1DBE12006D6ABB /* PatternFour.h */,
+				FE8036111A1DBE12006D6ABB /* PatternFour.m */,
+			);
+			name = 4;
+			path = Patterns/4;
 			sourceTree = "<group>";
 		};
 		FEAC1A591A1ADFEC00EADE58 /* Controller */ = {
@@ -539,6 +553,7 @@
 			files = (
 				FE61F8101A0B0A170028225C /* ViewController.m in Sources */,
 				FE44278D1A11D7A2009E6A44 /* AsyncSocket.m in Sources */,
+				FE8036121A1DBE12006D6ABB /* PatternFour.m in Sources */,
 				FEAC1A551A19E60100EADE58 /* ClientListCell.m in Sources */,
 				FE4B73191A15DE9700238A02 /* Scanner.m in Sources */,
 				FE44277B1A11C0D3009E6A44 /* ConfigViewController.m in Sources */,
@@ -627,7 +642,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = YES;
 				ONLY_ACTIVE_ARCH = YES;
 				SDKROOT = iphoneos8.1;
@@ -663,7 +678,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 6.0;
+				IPHONEOS_DEPLOYMENT_TARGET = 8.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				SDKROOT = iphoneos8.1;
 				TARGETED_DEVICE_FAMILY = "1,2";

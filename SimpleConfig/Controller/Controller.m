@@ -46,7 +46,7 @@
     if ([control_sock isClosed]) {
         NSLog(@"m_controller reopen");
         control_sock = [[AsyncUdpSocket alloc]initWithDelegate:self];
-        [control_sock bindToPort:(LOCAL_PORT_NUM+1) error:&err];
+        [control_sock bindToPort:(LOCAL_PORT_NUM) error:&err];
     }
 }
 
@@ -213,18 +213,18 @@
     unsigned char flag = REQ_ACK;
     memcpy(buffer+len, &flag, 1);
     len+=1;
-    NSLog(@"Control ACK: flag = %02x", flag);
+    //NSLog(@"Control ACK: flag = %02x", flag);
     
     /* length */
     unsigned char data_len[2]={0x0, (unsigned char)length};
     memcpy(buffer+len, data_len, 2);
     len+=2;
-    NSLog(@"Control ACK: length = %02x%02x", data_len[0], data_len[1]);
+    //NSLog(@"Control ACK: length = %02x%02x", data_len[0], data_len[1]);
     
     /* security level */
     memcpy(buffer+len, &m_security_level, 1);
     len += 1;
-    NSLog(@"Control ACK: security level = %02x", m_security_level);
+    //NSLog(@"Control ACK: security level = %02x", m_security_level);
     
     /* Nonce: a random value */
     unsigned char nonce[64] = {0x0};
@@ -236,8 +236,8 @@
     memcpy(buffer+len, nonce, 64);
     len += 64;
     
-    NSLog(@"Control ACK: default pin = %@", psw);
-    NSLog(@"Control ACK: dev pin = %@", dev_pin);
+    //NSLog(@"Control ACK: default pin = %@", psw);
+    //NSLog(@"Control ACK: dev pin = %@", dev_pin);
     const unsigned char *psw_char = (const unsigned char *)[psw cStringUsingEncoding:NSASCIIStringEncoding];
     unsigned int psw_len = (unsigned int)strlen((const char *)psw_char);
     const unsigned char *pin_char = (const unsigned char*)[dev_pin cStringUsingEncoding:NSASCIIStringEncoding];
@@ -246,7 +246,7 @@
     unsigned char md5_buffer[64+64]={0x0};
     unsigned char md5_result[16] = {0x0};
     /* Digest1: md5 buffer is nonce+default_pin */
-    NSLog(@"Control ACK: default_pin_char(%d) = %s", psw_len, psw_char);
+    //NSLog(@"Control ACK: default_pin_char(%d) = %s", psw_len, psw_char);
     memcpy(md5_buffer, nonce, 64);
     memcpy(md5_buffer+64, psw_char, psw_len);
     CC_MD5(md5_buffer, 64+psw_len, md5_result);
@@ -254,7 +254,7 @@
     len += 16;
     
     /* Digest2: md5 buffer is nonce+dev_pin */
-    NSLog(@"Control ACK: dev pin_char(%d) = %s", dev_pin_len, pin_char);
+    //NSLog(@"Control ACK: dev pin_char(%d) = %s", dev_pin_len, pin_char);
     memset(md5_buffer, 0x0, 64+64);
     memset(md5_result, 0x0, 16);
     memcpy(md5_buffer, nonce, 64);
@@ -264,7 +264,7 @@
     len += 16;
     
     /* control type */
-    NSLog(@"Control ACK: control type is %02x", control_type);
+    //NSLog(@"Control ACK: control type is %02x", control_type);
     unsigned char last_byte;
     switch (control_type) {
         case 0x22:
@@ -280,7 +280,7 @@
             last_byte = BIT(0)|BIT(1)|BIT(2)|BIT(3)|BIT(4);
             break;
     }
-    NSLog(@"Control ACK: last byte is %02x", last_byte);
+    //NSLog(@"Control ACK: last byte is %02x", last_byte);
     memcpy(buffer+len, &last_byte, 1);
     len += 1;
     
@@ -335,7 +335,7 @@
     }
     flag = data_p[0];
     
-#if 1
+#if 0
     // for debug
     NSLog(@"control received data is %ld bytes: ", (unsigned long)[data length]);
     
@@ -349,9 +349,9 @@
     if (flag==RSP_DEL_PROFILE || flag==RSP_RENAME_DEV) {
         unsigned int ack_ip = [self rtk_sc_convert_host_to_ip:host];
         unsigned char ack_result = data_p[3];
-        NSLog(@"ack_ip=%x", ack_ip);
-        NSLog(@"dev pin=%@", m_dev_pin);
-        NSLog(@"ack_result=%d", ack_result);
+        //NSLog(@"ack_ip=%x", ack_ip);
+        //NSLog(@"dev pin=%@", m_dev_pin);
+        //NSLog(@"ack_result=%d", ack_result);
         
         m_result = ack_result;
         [self gen_control_ack_data:flag length:CONTROL_ACK_ACK_LEN];

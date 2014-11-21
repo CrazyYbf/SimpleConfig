@@ -82,19 +82,29 @@
 
 - (void)rtk_sc_close_sock
 {
+    NSLog(@"Base: rtk_sc_close_sock");
+    [m_config_list removeAllObjects];
+    
     if (![m_configSocket isClosed]) {
         NSLog(@"close config socket");
         [m_configSocket close];
+        [m_configSocket release];
+        m_configSocket = nil;
     }
     
     if (![m_controlSocket isClosed]) {
         NSLog(@"close control socket");
         [m_controlSocket close];
+        [m_controlSocket release];
+        m_controlSocket = nil;
     }
 }
 
 - (void)rtk_sc_reopen_sock
 {
+    NSLog(@"Base: rtk_sc_reopen_sock");
+    m_mode = MODE_INIT;
+    
     NSError *err;
     if ([m_configSocket isClosed]) {
         /* init udp socket(multicast) */
@@ -133,7 +143,7 @@
     
     NSString *host = [[NSString alloc] initWithString:[NSString stringWithFormat:@"%d.%d.%d.%d", (ip>>24)&0xFF, (ip>>16)&0xFF, (ip>>8)&0xFF, ip&0xFF]];
     
-    NSLog(@"P3: sendData 1......host=%@, port=%d", host, MCAST_PORT_NUM);
+    //NSLog(@"sendData 1......host=%@, port=%d", host, MCAST_PORT_NUM);
     [sock joinMulticastGroup:host error:&err];
     [sock receiveWithTimeout:-1 tag:0];
     BOOL result = [sock sendData:data toHost:host port:MCAST_PORT_NUM withTimeout:-1 tag:0];
@@ -161,7 +171,7 @@
     NSError *err;
     NSString *host = [[NSString alloc] initWithString:[NSString stringWithFormat:@"%d.%d.%d.%d", (ip>>24)&0xFF, (ip>>16)&0xFF, (ip>>8)&0xFF, ip&0xFF]];
     
-    NSLog(@"P3: sendData 2......host=%@, port=%d", host, MCAST_PORT_NUM);
+    //NSLog(@"sendData 2......host=%@, port=%d", host, MCAST_PORT_NUM);
     // send data by multicast
     [sock joinMulticastGroup:host error:&err];
     [sock receiveWithTimeout:-1 tag:0];
@@ -186,7 +196,7 @@
     
     NSString *host = [[NSString alloc] initWithString:[NSString stringWithFormat:@"%d.%d.%d.%d", (ip>>24)&0xFF, (ip>>16)&0xFF, (ip>>8)&0xFF, ip&0xFF]];
     //debug
-    NSLog(@"P3: sendData 3......host=%@, port=%d", host, UNICAST_PORT_NUM);
+    NSLog(@"sendData 3......host=%@, port=%d", host, UNICAST_PORT_NUM);
     
     [sock receiveWithTimeout:-1 tag:0];
     BOOL result = [sock sendData:payload toHost:host port:UNICAST_PORT_NUM withTimeout:-1 tag:0];
@@ -198,6 +208,44 @@
     host = nil;
     [host release];
     return ret;
+}
+
+/* Send interface 4: send broadcast data */
+- (int)udp_send_bro_data_interface: (unsigned int)length
+{
+    int retval= RTK_FAILED;
+    AsyncUdpSocket *sock = [self rtk_sc_get_config_sock];
+    
+    unsigned int ip = 0xffffffff;   // using broadcast ip 255.255.255.255
+
+    unsigned char raw_msg[length];
+    int val = 0;
+    for (val=0; val<length; val++) {
+        raw_msg[val] = 'a';
+    }
+
+    //NSString *msg = [[NSString alloc] initWithUTF8String:(const char *)raw_msg];
+    
+    //NSData *data = [msg dataUsingEncoding:NSUTF8StringEncoding];
+    NSData *data = [NSData dataWithBytes:raw_msg length:length];
+    NSString *host = [[NSString alloc] initWithString:[NSString stringWithFormat:@"%d.%d.%d.%d", (ip>>24)&0xFF, (ip>>16)&0xFF, (ip>>8)&0xFF, ip&0xFF]];
+    
+    // send data by broadcast
+    //NSLog(@"sendData, length=0x%x(%d)", length, length);
+    //[sock enableBroadcast:true error:&err];
+    [sock receiveWithTimeout:-1 tag:0];
+    
+    BOOL ret = [sock sendData:data toHost:host  port:MCAST_PORT_NUM withTimeout:-1 tag:0];
+    
+    // deal with multicast send result
+    if(!ret)
+        retval = RTK_FAILED;
+    else
+        retval = RTK_SUCCEED;
+
+    host = nil;
+    [host release];
+    return retval;
 }
 
 - (int)rtk_pattern_build_profile: (NSString *)ssid psw:(NSString *)password pin:(NSString *)pin
@@ -244,17 +292,17 @@
     
     /* MD5 digest, plain buffer is nonce+default_pin */
     unsigned char md5_result[16] = {0x0};
-    NSLog(@"m_pin : %@", m_pin);
+    //NSLog(@"m_pin : %@", m_pin);
     NSString *pin = m_pin;
     const unsigned char *default_pin_char = (const unsigned char *)[pin cStringUsingEncoding:NSUTF8StringEncoding];
     unsigned int default_pin_len = (unsigned int)(strlen((const char *)default_pin_char));
-    NSLog(@"default_pin_char is(%d) %s", default_pin_len, default_pin_char);
+    //NSLog(@"default_pin_char is(%d) %s", default_pin_len, default_pin_char);
     unsigned char md5_buffer[64+64] = {0x0};//note: default pin max length is 64 bytes
     memcpy(md5_buffer, nonce, 64);
     memcpy(md5_buffer+64, default_pin_char, default_pin_len);
-    NSLog(@"md5_plain buffer is(%d) %s", (int)strlen((const char *)md5_buffer), md5_buffer);
+    //NSLog(@"md5_plain buffer is(%d) %s", (int)strlen((const char *)md5_buffer), md5_buffer);
     CC_MD5(md5_buffer, 64+default_pin_len , md5_result);
-    NSLog(@"md5_encrypt result: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", md5_result[0],md5_result[1],md5_result[2],md5_result[3],md5_result[4],md5_result[5],md5_result[6],md5_result[7],md5_result[8],md5_result[9],md5_result[10],md5_result[11],md5_result[12],md5_result[13],md5_result[14],md5_result[15]);
+    //NSLog(@"md5_encrypt result: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", md5_result[0],md5_result[1],md5_result[2],md5_result[3],md5_result[4],md5_result[5],md5_result[6],md5_result[7],md5_result[8],md5_result[9],md5_result[10],md5_result[11],md5_result[12],md5_result[13],md5_result[14],md5_result[15]);
     
     memcpy(buffer+len, md5_result, 16);
     len += 16;
@@ -273,6 +321,7 @@
     NSInteger size = SCAN_DATA_LEN;
     NSData *ack_data = [NSData dataWithBytes:(const void*)buffer length:size];
     
+    NSLog(@"Send ack multicast!");
     ret = [self udp_send_multi_data_interface:0xFFFFFFFF payload:ack_data];
     
     return ret;
@@ -311,17 +360,17 @@
     
     /* MD5 digest, plain buffer is nonce+default_pin */
     unsigned char md5_result[16] = {0x0};
-    NSLog(@"m_pin : %@", m_pin);
+    //NSLog(@"m_pin : %@", m_pin);
     NSString *pin = m_pin;
     const unsigned char *default_pin_char = (const unsigned char *)[pin cStringUsingEncoding:NSUTF8StringEncoding];
     unsigned int default_pin_len = (unsigned int)(strlen((const char *)default_pin_char));
-    NSLog(@"default_pin_char is(%d) %s", default_pin_len, default_pin_char);
+    //NSLog(@"default_pin_char is(%d) %s", default_pin_len, default_pin_char);
     unsigned char md5_buffer[64+64] = {0x0};//note: default pin max length is 64 bytes
     memcpy(md5_buffer, nonce, 64);
     memcpy(md5_buffer+64, default_pin_char, default_pin_len);
-    NSLog(@"md5_plain buffer is(%d) %s", (int)strlen((const char *)md5_buffer), md5_buffer);
+    //NSLog(@"md5_plain buffer is(%d) %s", (int)strlen((const char *)md5_buffer), md5_buffer);
     CC_MD5(md5_buffer, 64+default_pin_len , md5_result);
-    NSLog(@"md5_encrypt result: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", md5_result[0],md5_result[1],md5_result[2],md5_result[3],md5_result[4],md5_result[5],md5_result[6],md5_result[7],md5_result[8],md5_result[9],md5_result[10],md5_result[11],md5_result[12],md5_result[13],md5_result[14],md5_result[15]);
+    //NSLog(@"md5_encrypt result: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", md5_result[0],md5_result[1],md5_result[2],md5_result[3],md5_result[4],md5_result[5],md5_result[6],md5_result[7],md5_result[8],md5_result[9],md5_result[10],md5_result[11],md5_result[12],md5_result[13],md5_result[14],md5_result[15]);
     
     memcpy(buffer+len, md5_result, 16);
     len += 16;
@@ -340,6 +389,7 @@
     NSInteger size = SCAN_DATA_LEN;
     NSData *ack_data = [NSData dataWithBytes:(const void*)buffer length:size];
     
+    NSLog(@"Send ack to %x", ip);
     ret = [self udp_send_unicast_interface:ip payload:ack_data];
     
     return ret;
@@ -402,6 +452,11 @@
     freeifaddrs(interfaces);
 
     wifi_ip_char = [address UTF8String];
+    NSLog(@"address=%@, wifi_ip_char=%s", address, wifi_ip_char);
+    if ([address isEqualToString:@"error"]) {
+#define SC_ERR_LOCAL_IP     0
+        return SC_ERR_LOCAL_IP;
+    }
     while(1)
     {
         if(((wifi_ip_char[count]!='.')&&(bytes<3)) || ((bytes==3)&&(wifi_ip_char[count]!='\0')) )
@@ -563,7 +618,6 @@
 }
 
 /* ***********************Receive Delegate************************** */
-#if SC_DBG_CONFIG_RECV
 -(void) dump_dev_info: (struct dev_info *)dev
 {
     NSLog(@"======Dump dev_info======");
@@ -574,7 +628,6 @@
     //NSLog(@"Name:%@", [NSString stringWithUTF8String:(const char *)(dev->extra_info)]);
     NSLog(@"Name:%@", [NSString stringWithCString:(const char *)(dev->extra_info) encoding:NSUTF8StringEncoding]);
 }
-#endif
 
 -(void) build_dev_info:(struct dev_info *)new_dev data_p: (unsigned char *)data_p len: (unsigned int)len
 {
@@ -594,9 +647,8 @@
     memcpy(&new_dev->ip, ip_translator, 4);
     
     memcpy(&new_dev->extra_info, data_p+ACK_OFFSET_DEV_NAME, len-MAC_ADDR_LEN-1-2-4);
-#if SC_DBG_CONFIG_RECV
+    
     [self dump_dev_info:new_dev];
-#endif
 }
 
 /* update the received data to m_config_list */
@@ -678,7 +730,7 @@ AddNewObj:
     if (host==nil) {
         return NO;
     }
-    NSLog(@"=============Receive from host %@ port %d==================", host, port);
+    NSLog(@"=============Base: Receive from host %@ port %d==================", host, port);
     
     /* step 1: get the received data */
     unsigned char flag;

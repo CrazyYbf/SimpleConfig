@@ -8,9 +8,6 @@
 
 #import "PatternBase.h"
 
-/* Description:
- * Pattern 3 use multicast to send wifi profile with user-defined PIN code
- */
 #define PATTERN_THREE_DBG       1
 #define PATTERN_THREE_NAME      @"sc_mcast_udp"
 

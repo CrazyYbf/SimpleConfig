@@ -65,6 +65,16 @@ typedef union _block{
     return [super rtk_sc_get_mode];
 }
 
+- (void)rtk_sc_close_sock
+{
+    [super rtk_sc_close_sock];
+}
+
+- (void)rtk_sc_reopen_sock
+{
+    [super rtk_sc_reopen_sock];
+}
+
 // Internal Functions
 /* Add an interger value to m_plain_buf with TLV format */
 - (int)add_tlv_int:(unsigned int)offset tag:(unsigned char)tag value:(unsigned int)value
@@ -78,7 +88,7 @@ typedef union _block{
     memcpy(m_plain_buf+offset+TLV_T_L_BYTES, &value, sizeof(value));
     
     ret = (TLV_T_L_BYTES + sizeof(value));
-    m_plain_len += ret;
+    //m_plain_len += ret;
     
     return ret;
 }
@@ -97,7 +107,7 @@ typedef union _block{
     memcpy(m_plain_buf+offset+TLV_T_L_BYTES, value, len);
     
     ret = (TLV_T_L_BYTES + len);
-    m_plain_len += ret;
+    //m_plain_len += ret;
     
     NSLog(@"ret=%d",ret);
     return ret;
@@ -152,7 +162,7 @@ typedef union _block{
 
 - (void)gen_random: (unsigned char *)random
 {
-#if 0
+#if 1
     /* calculate random value, will be used in sync packets and for generating HMAC_SHA key(using MD5) */
     random[0] = (SC_RAND_MIN + rand()%(SC_RAND_MAX - SC_RAND_MIN)) & 0xFF;
     random[1] = (SC_RAND_MIN + rand()%(SC_RAND_MAX - SC_RAND_MIN)) & 0xFF;
@@ -186,6 +196,8 @@ typedef union _block{
     step += [self profile_add_ip:step ip:ip];
     NSLog(@"build_plain_buf: step=%d", step);
     
+    m_plain_len = step;
+    NSLog(@"m_plain_len=%d", m_plain_len);
     return RTK_SUCCEED;
 }
 
@@ -536,7 +548,5 @@ typedef union _block{
 {
     return [super rtk_pattern_get_config_list];
 }
-
-
 
 @end

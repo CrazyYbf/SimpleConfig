@@ -39,19 +39,27 @@
 {
     // Must release simpleConfig, so that its asyncUDPSocket delegate won't receive data
     NSLog(@"config viewDidDisappear");
-//    [simpleConfig dealloc];
-//    simpleConfig = nil;
+#if 0
     [simpleConfig rtk_sc_close_sock];
+#else
+    [simpleConfig dealloc];
+    simpleConfig = nil;
+#endif
     [m_context.m_timer invalidate];
-    //[m_context.m_timer release];
-    ///m_context.m_timer = nil;
+
     [super viewDidDisappear:animated];
 }
 
 - (void)viewWillAppear:(BOOL)animated
 {
-//    simpleConfig = [[SimpleConfig alloc] init];
+#if 0
     [simpleConfig rtk_sc_reopen_sock];
+#else
+    if (simpleConfig==nil) {
+        simpleConfig = [[SimpleConfig alloc] init];
+    }
+    [m_control_button setHidden:true];
+#endif
     m_context.m_timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(configTimerHandler:) userInfo:nil repeats:YES];
     NSLog(@"config view will appear");
 }
@@ -106,12 +114,18 @@
 /* action responder */
 - (IBAction)rtk_start_listener:(id)sender
 {
+    int ret = RTK_FAILED;
     if (m_context.m_mode == MODE_INIT || m_context.m_mode == MODE_WAIT_FOR_IP) {
         // build profile and send
+        ret = [simpleConfig rtk_sc_config_start:m_input_ssid.text psw:m_input_password.text pin:m_input_pin.text];
+        if (ret==RTK_FAILED) {
+            UIAlertView *alert = [[UIAlertView alloc] initWithTitle:SC_UI_ALERT_TITLE_ERROR message:SC_UI_ALERT_WITHOUT_IP delegate:self cancelButtonTitle:SC_UI_ALERT_OK otherButtonTitles:nil, nil];
+            [alert show];
+            return ;
+        }
         m_context.m_mode = MODE_CONFIG;
         [m_control_button setHidden:YES];
         [m_config_button setTitle:SC_UI_STOP_BUTTON forState:UIControlStateNormal];
-        [simpleConfig rtk_sc_config_start:m_input_ssid.text psw:m_input_password.text pin:m_input_pin.text];
     }else if(m_context.m_mode == MODE_CONFIG){
         // stop sending profile
         m_context.m_mode = MODE_INIT;
@@ -151,8 +165,8 @@
 
 -(void)configTimerHandler: (NSTimer *)sender
 {
-    if (simpleConfig==nil || sender==nil) {
-        NSLog(@"Timer error in config vc");
+    if (simpleConfig==nil || m_context.m_timer==nil) {
+        //NSLog(@"Timer error in config vc");
         return;
     }
     unsigned int sc_mode = [simpleConfig rtk_sc_get_mode];

@@ -12,15 +12,27 @@
 #import "Defines.h"
 #import "PatternTwo.h"
 #import "PatternThree.h"
+#import "PatternFour.h"
 
 #define SC_SEND_ROUND_PER_SEC       10                      // send round per second
 #define SC_MAX_PATTERN_NUM          4                       // currently only supports at most 4 patterns
 
+#define SC_SUPPORT_2X2              1                       // support 2x2 wifi
+#define SC_PATTERN_SWITCH_THRESHOLD 5                      // time(in seconds) to switch configuring mode
+
 @interface SimpleConfig : NSObject{
 @private
+    BOOL            m_shouldStop;
     unsigned int    m_mode;                                 // simple config state machine
     unsigned int    m_current_pattern;                      // pattern in use
-    BOOL            m_shouldStop;
+#if SC_SUPPORT_2X2
+    int             m_config_duration;                      // duration of MODE_CONFIG
+    NSString        *m_ssid;                                // must record to rebuild profile
+    NSString        *m_password;
+    NSString        *m_pin;
+    NSString        *m_idev_model;                          // iDevice model
+#endif
+
     NSTimer         *m_timer;
     NSString        *m_error;
     PatternBase     *m_pattern[SC_MAX_PATTERN_NUM];

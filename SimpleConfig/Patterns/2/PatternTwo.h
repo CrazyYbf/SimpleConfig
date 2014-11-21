@@ -13,10 +13,6 @@
 #define PATTERN_TWO_DBG     1
 #define PATTERN_TWO_NAME    @"sc_mcast_udp"
 
-/* Description:
- * Pattern 2 use multicast to send wifi profile with default PIN code
- */
-
 @interface PatternTwo : PatternBase 
 {
 @private

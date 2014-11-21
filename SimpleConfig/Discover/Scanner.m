@@ -100,7 +100,7 @@
     memcpy(md5_buffer, nonce, 64);
     memcpy(md5_buffer+64, default_pin_char, default_pin_len);
     NSLog(@"md5_plain buffer is(%d) %s", (int)strlen((const char *)md5_buffer), md5_buffer);
-    CC_MD5(md5_buffer, 64+default_pin_len , md5_result);
+    CC_MD5((const void *)md5_buffer, 64+default_pin_len , (unsigned char *)md5_result);
     NSLog(@"md5_encrypt result: %02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x", md5_result[0],md5_result[1],md5_result[2],md5_result[3],md5_result[4],md5_result[5],md5_result[6],md5_result[7],md5_result[8],md5_result[9],md5_result[10],md5_result[11],md5_result[12],md5_result[13],md5_result[14],md5_result[15]);
     
     memcpy(scan_buf+len, md5_result, 16);
@@ -131,8 +131,8 @@
     NSString *host = [[NSString alloc] initWithString:[NSString stringWithFormat:@"%d.%d.%d.%d", (ip>>24)&0xFF, (ip>>16)&0xFF, (ip>>8)&0xFF, ip&0xFF]];
 
     [scan_socket joinMulticastGroup:host error:&err];
-    [scan_socket receiveWithTimeout:100000 tag:0];
-    result = [scan_socket sendData:scan_data toHost:host  port:MCAST_PORT_NUM withTimeout:10000 tag:0];
+    [scan_socket receiveWithTimeout:-1 tag:0];
+    result = [scan_socket sendData:scan_data toHost:host  port:MCAST_PORT_NUM withTimeout:-1 tag:0];
     if(!result)
         ret = RTK_FAILED;
     else
@@ -214,6 +214,7 @@
 
 -(void) dump_dev_info: (struct dev_info *)dev
 {
+#if SCANNER_DBG
     NSLog(@"======Dump dev_info======");
     NSLog(@"MAC: %02x:%02x:%02x:%02x:%02x:%02x", dev->mac[0], dev->mac[1],dev->mac[2],dev->mac[3],dev->mac[4],dev->mac[5]);
     NSLog(@"Status: %d", dev->status);
@@ -221,6 +222,8 @@
     NSLog(@"IP:%x", dev->ip);
     //NSLog(@"Name:%@", [NSString stringWithUTF8String:(const char *)(dev->extra_info)]);
     NSLog(@"Name:%@", [NSString stringWithCString:(const char *)(dev->extra_info) encoding:NSUTF8StringEncoding]);
+#else
+#endif
 }
 
 /* update the received data to m_config_list */
