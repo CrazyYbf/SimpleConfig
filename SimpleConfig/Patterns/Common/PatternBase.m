@@ -9,6 +9,9 @@
 #import <Foundation/Foundation.h>
 #import "PatternBase.h"
 #import <SystemConfiguration/CaptiveNetwork.h>
+#import <CommonCrypto/CommonDigest.h>
+#import <CommonCrypto/CommonCryptor.h>
+#import <CommonCrypto/CommonHMAC.h>
 
 #include <errno.h>
 #include <stdio.h>
@@ -78,6 +81,7 @@
 - (void)rtk_sc_set_pin:(NSString *)pin
 {
     m_pin = [[[NSString alloc] initWithString:pin] retain];
+    NSLog(@"Base: m_pin=%@", m_pin);
 }
 
 - (void)rtk_sc_close_sock
@@ -85,14 +89,14 @@
     NSLog(@"Base: rtk_sc_close_sock");
     [m_config_list removeAllObjects];
     
-    if (![m_configSocket isClosed]) {
+    if ((m_configSocket!=nil) && ![m_configSocket isClosed]) {
         NSLog(@"close config socket");
         [m_configSocket close];
         [m_configSocket release];
         m_configSocket = nil;
     }
     
-    if (![m_controlSocket isClosed]) {
+    if ((m_controlSocket!=nil) && ![m_controlSocket isClosed]) {
         NSLog(@"close control socket");
         [m_controlSocket close];
         [m_controlSocket release];
@@ -654,7 +658,7 @@
 /* update the received data to m_config_list */
 -(int)updateConfigList: (unsigned char *)data_p len:(unsigned int)data_length
 {
-    int getIP = 0, exist = 0, i=0;
+    int getIP = -1, exist = 0, i=0;
     struct dev_info old_dev;
     NSValue *old_dev_val;
     int dev_total_num = (int)[m_config_list count];
@@ -699,6 +703,7 @@
             [self rtk_pattern_send_ack_packets];
         }
         
+        NSLog(@"getIP-1=%d", getIP);
         return getIP;
     }
     
@@ -721,6 +726,7 @@ AddNewObj:
             [self rtk_pattern_send_ack_packets:new_dev.ip];
         }
         
+        NSLog(@"getIP-2=%d", getIP);
         return getIP;
     }
 }
@@ -731,6 +737,7 @@ AddNewObj:
         return NO;
     }
     NSLog(@"=============Base: Receive from host %@ port %d==================", host, port);
+    NSLog(@"m_mode=%d", m_mode);
     
     /* step 1: get the received data */
     unsigned char flag;
@@ -747,36 +754,43 @@ AddNewObj:
     for (int recv_idx=0; recv_idx<(data_length+3); recv_idx++) {
         NSLog(@"[%d]: %02x", recv_idx, data_p[recv_idx]);
     }
-    NSLog(@"m_mode=%d", m_mode);
 #endif
+    NSLog(@"flag=%d", flag);
     
     /* step 2: parse the data flag */
     switch (m_mode) {
         case MODE_INIT:
             if (flag==RSP_CONFIG) {
                 // whatever happens, don't update mode here.
+                NSLog(@"1111");
                 [self updateConfigList:data_p len:data_length];
             }
             break;
             
         case MODE_CONFIG:
             // configuring mode, wait for config ack1(maybe have ip, then it's ack2)
+            NSLog(@"2222-1");
             if (flag==RSP_CONFIG) {
                 // add new config device info to m_config_list
                 if ([self updateConfigList:data_p len:data_length])
                     m_mode = MODE_INIT;
                 else
                     m_mode = MODE_WAIT_FOR_IP;
+                NSLog(@"2222-2, m_mode=%d", m_mode);
             }// ignore other received data
             break;
             
         case MODE_WAIT_FOR_IP:
+            NSLog(@"4444-1");
             if (flag==RSP_CONFIG) {
                 /* 1. It's config ack2. check mac address is still the same. If so, only update ip address of dev_info
                  * 2. Other clients reply ack
                  */
-                if ([self updateConfigList:data_p len:data_length])
+                if ([self updateConfigList:data_p len:data_length]){
+                    NSLog(@"4444-2");
                     m_mode = MODE_INIT;
+                }
+                NSLog(@"4444-3, m_mode=%d", m_mode);
             }
             break;
             

@@ -7,6 +7,11 @@
 //
 
 #import "Scanner.h"
+#import <Foundation/Foundation.h>
+#import <CommonCrypto/CommonDigest.h>
+#import <CommonCrypto/CommonCryptor.h>
+#import <CommonCrypto/CommonHMAC.h>
+
 #define SC_SCAN_PIN             @"57289961"
 
 @implementation Scanner

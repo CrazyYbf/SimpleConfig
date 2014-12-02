@@ -172,6 +172,9 @@
     unsigned int sc_mode = [simpleConfig rtk_sc_get_mode];
     switch (sc_mode) {
         case MODE_INIT:
+            if (![m_config_button.titleLabel.text isEqualToString:SC_UI_START_BUTTON]) {
+                [m_config_button setTitle:SC_UI_START_BUTTON forState:UIControlStateNormal];
+            }
             if ([self isWithIPNoName]) {
                 [self showControlButton];
             }

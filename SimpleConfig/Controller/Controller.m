@@ -7,6 +7,11 @@
 //
 
 #import "Controller.h"
+#import <Foundation/Foundation.h>
+#import <CommonCrypto/CommonDigest.h>
+#import <CommonCrypto/CommonCryptor.h>
+#import <CommonCrypto/CommonHMAC.h>
+
 #define SC_CONTROL_DEF_PIN             @"57289961"
 
 @implementation Controller

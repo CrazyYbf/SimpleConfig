@@ -29,7 +29,7 @@
             [_name_label setText:@"Untitled"];
         else
             [_name_label setText:[NSString stringWithUTF8String:(const char *)dev.extra_info]];
-        _ip_label.text = [NSString stringWithFormat:@"%02d.%02d.%02d.%02d", 0xFF&(dev.ip>>24), 0xFF&(dev.ip>>16), 0xFF&(dev.ip>>8), 0xFF&dev.ip];
+        _ip_label.text = [NSString stringWithFormat:@"%d.%d.%d.%d", 0xFF&(dev.ip>>24), 0xFF&(dev.ip>>16), 0xFF&(dev.ip>>8), 0xFF&dev.ip];
         _mac_label.text = [NSString stringWithFormat:@"%02x:%02x:%02x:%02x:%02x:%02x", dev.mac[0], dev.mac[1], dev.mac[2], dev.mac[3], dev.mac[4], dev.mac[5]];
     }
     

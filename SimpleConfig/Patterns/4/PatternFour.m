@@ -57,6 +57,7 @@ typedef union _block{
 
 - (void)dealloc
 {
+    [m_pin release];
     [super dealloc];
 }
 
@@ -215,6 +216,7 @@ typedef union _block{
     memset(buffer, '\0', 128);
     const char *tmp;
     //NSString *default_pin = m_pin;
+    NSLog(@"generate_key: m_pin=%@", m_pin);
     
     /* get SA */
     NSString *mac_addr = [self getMACAddress:"en0"];
@@ -504,6 +506,7 @@ typedef union _block{
         packet_sent++;
         bit_sent += 4;
     }
+    NSLog(@"Pattern 4 sent done");
     
     return RTK_SUCCEED;
 }
@@ -512,10 +515,12 @@ typedef union _block{
 - (int)rtk_pattern_build_profile: (NSString *)ssid psw:(NSString *)password pin:(NSString *)pin
 {
     NSLog(@"======================PATTERN 4: build profile======================");
+    //NSLog(@"pin:%@", pin);
     int ret = RTK_FAILED;
     // set pin, use default PIN
-    pin = PATTERN_DEF_PIN;
+    //pin = PATTERN_DEF_PIN;
     [super rtk_sc_set_pin:pin];
+    NSLog(@"m_pin: %@", m_pin);
     
     // build plain buf
     ret = [self build_plain_buf:ssid psw:password];

@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import <sys/sysctl.h>
 #import "SimpleConfig.h"
 
 @implementation SimpleConfig
@@ -24,7 +25,9 @@
     m_timer = [NSTimer scheduledTimerWithTimeInterval:1 target:self selector:@selector(timerHandler:) userInfo:nil repeats:YES];
     config_list = [[NSMutableArray alloc] initWithObjects:nil];
     discover_list = [[NSMutableArray alloc] initWithObjects:nil];
-
+    m_idev_model = [[NSString alloc] initWithString:[self platformString]];
+    NSLog(@"iDevice: %@", m_idev_model);
+    
     return [super init];
 }
 
@@ -34,6 +37,7 @@
     [discover_list dealloc];
     for (int i=0; i<SC_MAX_PATTERN_NUM; i++) {
         if (m_pattern[i]!=nil) {
+            [m_pattern[i] rtk_sc_close_sock];
             [m_pattern[i] dealloc];
         }
     }
@@ -80,22 +84,33 @@
     // actually we don't send here. It's timer handler's duty to send
     int ret;
     
-    NSLog(@"rtk_sc_start_config");
+    NSLog(@"rtk_sc_start_config, m_idev_model=%@",m_idev_model);
 
-    // base on the PIN input, decide to use Pattern
-    if (pin==nil || [pin isEqualToString:@""] || [pin intValue]==0){
-        m_pattern[PATTERN_TWO] = [[PatternTwo alloc] init:SC_USE_ENCRYPTION];
-        m_current_pattern = PATTERN_TWO;
-        pin = PATTERN_DEF_PIN;
-        m_pattern[PATTERN_THREE] = nil;
+    // base on the PIN input and device type, decide to use Pattern
+#if 0
+    // for testing
+    if ([m_idev_model isEqualToString:@"iPad Mini2"] || [m_idev_model isEqualToString:@"iPad Mini (WiFi)"])
+#else
+    if ([m_idev_model isEqualToString:@"iPad Mini2"])
+#endif
+    {
+        m_current_pattern = PATTERN_FOUR;
+        m_pattern[PATTERN_FOUR] = [[PatternFour alloc] init:SC_USE_ENCRYPTION];
+    }else{
+        if (pin==nil || [pin isEqualToString:@""] || [pin intValue]==0){
+            m_pattern[PATTERN_TWO] = [[PatternTwo alloc] init:SC_USE_ENCRYPTION];
+            m_current_pattern = PATTERN_TWO;
+            pin = PATTERN_DEF_PIN;
+            m_pattern[PATTERN_THREE] = nil;
+        }
+        else{
+            m_pattern[PATTERN_THREE] = [[PatternThree alloc] init:SC_USE_ENCRYPTION];
+            m_current_pattern = PATTERN_THREE;
+            m_pattern[PATTERN_TWO] = nil;
+        }
+        // init PATTERN 4, build its profile when needed!
+        m_pattern[PATTERN_FOUR] = [[PatternFour alloc] init:SC_USE_ENCRYPTION];
     }
-    else{
-        m_pattern[PATTERN_THREE] = [[PatternThree alloc] init:SC_USE_ENCRYPTION];
-        m_current_pattern = PATTERN_THREE;
-        m_pattern[PATTERN_TWO] = nil;
-    }
-    // init PATTERN 4, build its profile when needed!
-    m_pattern[PATTERN_FOUR] = [[PatternFour alloc] init:SC_USE_ENCRYPTION];
     
     NSLog(@"simpleconfig: set pattern %d", m_current_pattern+1);
     ret = [m_pattern[m_current_pattern] rtk_pattern_build_profile:ssid psw:password pin:pin];
@@ -162,6 +177,7 @@
     NSString *platform = [NSString stringWithCString:machine encoding:NSUTF8StringEncoding];
     free(machine);
     
+    NSLog(@"platform: %@", platform);
     if ([platform isEqualToString:@"iPhone1,1"])    return @"iPhone 2G";
     if ([platform isEqualToString:@"iPhone1,2"])    return @"iPhone 3G";
     if ([platform isEqualToString:@"iPhone2,1"])    return @"iPhone 3GS";
@@ -193,6 +209,7 @@
     if ([platform isEqualToString:@"iPad3,4"])      return @"iPad 4 (WiFi)";
     if ([platform isEqualToString:@"iPad3,5"])      return @"iPad 4";
     if ([platform isEqualToString:@"iPad3,6"])      return @"iPad 4 (GSM+CDMA)";
+    if ([platform isEqualToString:@"iPad4,4"])      return @"iPad Mini2";
     if ([platform isEqualToString:@"i386"])         return @"Simulator";
     if ([platform isEqualToString:@"x86_64"])       return @"Simulator";
     
@@ -201,6 +218,9 @@
 
 -(void)timerHandler:(id)sender
 {
+    if (m_current_pattern<0 || m_current_pattern>=SC_MAX_PATTERN_NUM) {
+        return ;
+    }
     int status = RTK_FAILED;
     unsigned int pattern_mode;
 #if SC_SUPPORT_2X2
@@ -241,7 +261,7 @@
                         m_mode = MODE_ALERT;
                     }
                 }else if(pattern_mode==MODE_WAIT_FOR_IP || pattern_mode==MODE_INIT){
-                    m_mode = MODE_WAIT_FOR_IP;
+                    m_mode = (pattern_mode==MODE_INIT)? MODE_INIT:MODE_WAIT_FOR_IP;
                     // update config_list
                     NSMutableArray *recv_list = [m_pattern[m_current_pattern] rtk_pattern_get_config_list];
                     struct dev_info recv_dev;
